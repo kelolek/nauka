@@ -3,72 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mistrz Przymiotników - Klasa 4</title>
+    <title>Test: Przymiotniki Klasa 4</title>
     <style>
-        /* --- STYLE UNIWERSALNE (Nie zmieniać) --- */
+        /* --- STYLE --- */
         :root {
-            --primary: #0277bd; /* Kolor główny */
-            --primary-light: #e1f5fe;
-            --accent: #ff6f00; /* Kolor akcentu */
-            --success: #2e7d32;
-            --error: #c62828;
-            --bg-grid: #f5f5f5;
-            --text-main: #263238;
+            --primary: #0277bd; --primary-light: #e1f5fe; --accent: #ff6f00;
+            --success: #2e7d32; --error: #c62828; --bg-grid: #f5f5f5; --text-main: #263238;
         }
-
         body {
             font-family: 'Segoe UI', 'Verdana', sans-serif;
             background-color: var(--bg-grid);
-            background-image: 
-                linear-gradient(#cfd8dc 1px, transparent 1px),
-                linear-gradient(90deg, #cfd8dc 1px, transparent 1px);
-            background-size: 20px 20px;
-            color: var(--text-main);
-            margin: 0; padding: 20px;
-            display: flex; justify-content: center;
+            background-image: linear-gradient(#cfd8dc 1px, transparent 1px), linear-gradient(90deg, #cfd8dc 1px, transparent 1px);
+            background-size: 20px 20px; color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center;
         }
-
         .container {
-            background-color: #ffffff;
-            width: 100%; max-width: 900px;
-            padding: 40px; border-radius: 10px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            border-top: 12px solid var(--primary);
-            position: relative;
+            background-color: #ffffff; width: 100%; max-width: 900px; padding: 40px; border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 12px solid var(--primary); position: relative;
         }
-
         h1 { color: var(--primary); text-align: center; margin-bottom: 5px; font-size: 32px; letter-spacing: 1px; }
-        h2 { 
-            color: var(--primary); border-bottom: 2px solid #b0bec5; 
-            padding-bottom: 10px; margin-top: 50px;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        .instruction {
-            background-color: var(--primary-light); padding: 15px;
-            border-radius: 8px; color: #01579b; font-weight: 600;
-            margin-bottom: 25px; border-left: 5px solid var(--primary);
-        }
-
+        h2 { color: var(--primary); border-bottom: 2px solid #b0bec5; padding-bottom: 10px; margin-top: 50px; display: flex; align-items: center; gap: 10px; }
+        .instruction { background-color: var(--primary-light); padding: 15px; border-radius: 8px; color: #01579b; font-weight: 600; margin-bottom: 25px; border-left: 5px solid var(--primary); }
+        
         /* TIMER */
         #timer-box {
-            position: fixed; top: 20px; right: 20px;
-            background: #263238; color: #00e676;
-            font-family: 'Consolas', monospace; font-size: 24px;
-            padding: 10px 20px; border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000;
-            border: 2px solid #fff;
+            position: fixed; top: 20px; right: 20px; background: #263238; color: #00e676;
+            font-family: 'Consolas', monospace; font-size: 24px; padding: 10px 20px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; border: 2px solid #fff;
         }
 
         /* PYTANIA */
-        .question-box {
-            background-color: #fff; border: 2px solid #eceff1;
-            border-radius: 12px; padding: 20px; margin-bottom: 20px;
-            transition: all 0.3s;
-        }
+        .question-box { background-color: #fff; border: 2px solid #eceff1; border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: all 0.3s; }
         .question-box:hover { border-color: #90caf9; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .question-box.locked { background-color: #fafafa; border-color: #e0e0e0; opacity: 0.9; }
-
+        .question-box.locked { background-color: #fafafa; border-color: #e0e0e0; opacity: 0.9; pointer-events: none; }
         .sentence { font-size: 20px; margin-bottom: 15px; font-weight: 600; }
         .highlight { color: var(--primary); font-weight: bold; font-family: 'Consolas', monospace; font-size: 1.1em; }
 
@@ -76,8 +42,7 @@
         .options { display: flex; gap: 10px; flex-wrap: wrap; }
         button.choice-btn {
             padding: 12px 20px; font-size: 18px; cursor: pointer; background-color: white;
-            border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; transition: 0.2s;
-            flex: 1 1 auto; max-width: 250px; font-weight: bold;
+            border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; transition: 0.2s; flex: 1 1 auto; max-width: 250px; font-weight: bold;
         }
         button.choice-btn:hover:not(:disabled) { background-color: var(--primary-light); transform: translateY(-2px); }
         button.choice-btn:disabled { cursor: not-allowed; border-color: #ccc; color: #999; background-color: #f5f5f5; transform: none !important; }
@@ -86,37 +51,23 @@
         button.choice-btn.show-correct { background-color: #fff !important; border-color: #2e7d32 !important; color: #2e7d32 !important; box-shadow: 0 0 10px #c8e6c9; }
 
         /* INPUTS */
-        input[type="text"] {
-            padding: 8px 12px; font-size: 20px; border: 2px solid #b0bec5; border-radius: 8px;
-            width: 160px; text-align: center; color: #333; font-weight: bold; background-color: #fff;
-        }
+        input[type="text"] { padding: 8px 12px; font-size: 20px; border: 2px solid #b0bec5; border-radius: 8px; width: 160px; text-align: center; color: #333; font-weight: bold; background-color: #fff; }
         input[type="text"]:disabled { background-color: #eceff1; color: #546e7a; border-color: #cfd8dc; }
-        
-        .check-btn {
-            background-color: var(--primary); color: white; border: none; padding: 10px 20px;
-            font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px;
-        }
+        .check-btn { background-color: var(--primary); color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px; }
         .check-btn:hover:not(:disabled) { background-color: #01579b; }
         .check-btn:disabled { background-color: #b0bec5; cursor: default; }
 
-        /* FEEDBACK & RESULTS */
+        /* WYNIKI */
         .feedback { margin-top: 12px; font-weight: bold; font-size: 16px; min-height: 24px; }
-        .correct { color: var(--success); }
-        .wrong { color: var(--error); }
-
-        .result-section {
-            display: none; margin-top: 40px; padding: 30px; background-color: #fff;
-            border: 4px solid var(--primary); border-radius: 15px; text-align: center;
-        }
+        .correct { color: var(--success); } .wrong { color: var(--error); }
+        .result-section { display: none; margin-top: 40px; padding: 30px; background-color: #fff; border: 4px solid var(--primary); border-radius: 15px; text-align: center; }
         .diagnostic-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
         .diagnostic-table th, .diagnostic-table td { border: 1px solid #cfd8dc; padding: 12px; text-align: left; }
         .diagnostic-table th { background-color: var(--primary); color: white; }
-        .diag-bad { color: var(--error); font-weight: bold; }
-        .diag-ok { color: #f57c00; font-weight: bold; }
-        .diag-good { color: var(--success); font-weight: bold; }
+        .diag-bad { color: var(--error); font-weight: bold; } .diag-ok { color: #f57c00; font-weight: bold; } .diag-good { color: var(--success); font-weight: bold; }
 
         @media print {
-            #timer-box, #reset-btn, #finish-btn { display: none !important; }
+            #timer-box, #reset-btn, #finish-btn, #send-results-btn { display: none !important; }
             .result-section { display: block !important; border: 2px solid black; }
             body { background: white; } .container { box-shadow: none; border: none; width: 100%; }
         }
@@ -129,90 +80,92 @@
 
 <div class="container">
     <h1 id="test-title">MISTRZ PRZYMIOTNIKÓW</h1>
-    <p id="test-subtitle" style="text-align: center; color: #546e7a;">Odmiana przez przypadki i liczby - Klasa 4</p>
+    <p id="test-subtitle" style="text-align: center; color: #546e7a;">Odmiana przez przypadki - Klasa 4</p>
     
+    
+
     <div style="text-align: center; background: #fff3e0; padding: 10px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #ffe0b2; color: #e65100;">
-        <strong>&#9888; ZASADY:</strong> Zaznacz poprawną formę lub wpisz brakującą końcówkę. Czas jest mierzony!
+        <strong>&#9888; ZASADY:</strong> Brak możliwości poprawiania błędów! Czas jest mierzony.
     </div>
 
     <div id="questions-container">
         
         <div class="question-box" id="q1" data-category="rodzaj">
-            <div class="sentence">1. To jest mój <span class="highlight">_________</span> pies Burek. (wierny)</div>
+            <div class="sentence">1. To jest mój <span class="highlight">_________</span> brat. (starszy)</div>
             <div class="options">
-                <button class="choice-btn" onclick="checkChoice('q1', this, false)">wierna</button>
-                <button class="choice-btn" onclick="checkChoice('q1', this, true)">wierny</button>
-                <button class="choice-btn" onclick="checkChoice('q1', this, false)">wierne</button>
+                <button class="choice-btn" onclick="checkChoice('q1', this, false)">starsza</button>
+                <button class="choice-btn" onclick="checkChoice('q1', this, true)">starszy</button>
+                <button class="choice-btn" onclick="checkChoice('q1', this, false)">starsze</button>
             </div>
             <div class="feedback"></div>
         </div>
 
-        <div class="question-box" id="q2" data-category="przypadki">
-            <div class="sentence">2. Mama kupiła <span class="highlight">_________</span> jabłko. (słodki)</div>
+        <div class="question-box" id="q2" data-category="pisownia">
+            <div class="sentence">2. Mama kupiła <span class="highlight">_________</span> bluzkę. (nowy)</div>
             <div class="options">
-                <button class="choice-btn" onclick="checkChoice('q2', this, false)">słodki</button>
-                <button class="choice-btn" onclick="checkChoice('q2', this, false)">słodka</button>
-                <button class="choice-btn" onclick="checkChoice('q2', this, true)">słodkie</button>
+                <button class="choice-btn" onclick="checkChoice('q2', this, false)">nowy</button>
+                <button class="choice-btn" onclick="checkChoice('q2', this, true)">nową</button>
+                <button class="choice-btn" onclick="checkChoice('q2', this, false)">nowej</button>
             </div>
             <div class="feedback"></div>
         </div>
 
-        <div class="question-box" id="q3" data-category="koncowki">
-            <div class="sentence">3. Nie lubię <span class="highlight">zimn___</span> wiatru. (Jaka końcówka?)</div>
+        <div class="question-box" id="q3" data-category="przypadki">
+            <div class="sentence">3. Szukam mojego <span class="highlight">_________</span> psa. (mały)</div>
             <div class="options">
-                <button class="choice-btn" onclick="checkChoice('q3', this, true)">-ego</button>
-                <button class="choice-btn" onclick="checkChoice('q3', this, false)">-emu</button>
-                <button class="choice-btn" onclick="checkChoice('q3', this, false)">-ym</button>
+                <button class="choice-btn" onclick="checkChoice('q3', this, true)">małego</button>
+                <button class="choice-btn" onclick="checkChoice('q3', this, false)">małym</button>
+                <button class="choice-btn" onclick="checkChoice('q3', this, false)">mały</button>
             </div>
             <div class="feedback"></div>
         </div>
 
         <div class="question-box" id="q4" data-category="przypadki">
-            <div class="sentence">4. Pożyczyłem książkę <span class="highlight">_________</span> koledze. (miły)</div>
-            <p style="margin: 5px 0; font-size: 14px; color: #666;">Wpisz poprawną formę przymiotnika:</p>
+            <div class="sentence">4. Przyglądam się <span class="highlight">_________</span> obrazowi. (ładny)</div>
+            <p style="margin: 5px 0; font-size: 14px; color: #666;">Wpisz poprawną formę:</p>
             <div style="display:flex; align-items:center;">
-                <input type="text" id="input_q4" placeholder="wpisz tutaj">
-                <button class="check-btn" onclick="checkInput('q4', 'input_q4', ['miłemu'])">Sprawdź</button>
+                <input type="text" id="input_q4" placeholder="wpisz...">
+                <button class="check-btn" onclick="checkInput('q4', 'input_q4', ['ładnemu'])">Sprawdź</button>
             </div>
             <div class="feedback" id="fb-input_q4"></div>
         </div>
 
         <div class="question-box" id="q5" data-category="przypadki">
-            <div class="sentence">5. Idę na spacer z <span class="highlight">_________</span> siostrą. (starsza)</div>
+            <div class="sentence">5. Lubię kanapki z <span class="highlight">_________</span> serem. (żółty)</div>
             <div class="options">
-                <button class="choice-btn" onclick="checkChoice('q5', this, true)">starszą</button>
-                <button class="choice-btn" onclick="checkChoice('q5', this, false)">starszej</button>
-                <button class="choice-btn" onclick="checkChoice('q5', this, false)">starszym</button>
+                <button class="choice-btn" onclick="checkChoice('q5', this, true)">żółtym</button>
+                <button class="choice-btn" onclick="checkChoice('q5', this, false)">żółtymi</button>
+                <button class="choice-btn" onclick="checkChoice('q5', this, false)">żółtego</button>
             </div>
             <div class="feedback"></div>
         </div>
 
         <div class="question-box" id="q6" data-category="przypadki">
-            <div class="sentence">6. Marzę o <span class="highlight">_________</span> rowerze. (nowy)</div>
+            <div class="sentence">6. Marzę o <span class="highlight">_________</span> rowerze. (szybki)</div>
             <div class="options">
-                <button class="choice-btn" onclick="checkChoice('q6', this, false)">nowego</button>
-                <button class="choice-btn" onclick="checkChoice('q6', this, true)">nowym</button>
-                <button class="choice-btn" onclick="checkChoice('q6', this, false)">nowemu</button>
+                <button class="choice-btn" onclick="checkChoice('q6', this, false)">szybki</button>
+                <button class="choice-btn" onclick="checkChoice('q6', this, true)">szybkim</button>
+                <button class="choice-btn" onclick="checkChoice('q6', this, false)">szybkiego</button>
             </div>
             <div class="feedback"></div>
         </div>
 
         <div class="question-box" id="q7" data-category="rodzaj">
-            <div class="sentence">7. Na łące rosną <span class="highlight">_________</span> kwiaty. (kolorowy)</div>
+            <div class="sentence">7. Na niebie płyną <span class="highlight">_________</span> chmury. (biały)</div>
             <div class="options">
-                <button class="choice-btn" onclick="checkChoice('q7', this, false)">kolorowy</button>
-                <button class="choice-btn" onclick="checkChoice('q7', this, true)">kolorowe</button>
-                <button class="choice-btn" onclick="checkChoice('q7', this, false)">kolorowi</button>
+                <button class="choice-btn" onclick="checkChoice('q7', this, false)">biały</button>
+                <button class="choice-btn" onclick="checkChoice('q7', this, true)">białe</button>
+                <button class="choice-btn" onclick="checkChoice('q7', this, false)">biali</button>
             </div>
             <div class="feedback"></div>
         </div>
 
-        <div class="question-box" id="q8" data-category="koncowki">
-            <div class="sentence">8. Piszę <span class="highlight">niebiesk___</span> długopisem.</div>
-            <p style="margin: 5px 0; font-size: 14px; color: #666;">Wpisz brakującą końcówkę (np. im, ym):</p>
+        <div class="question-box" id="q8" data-category="pisownia">
+            <div class="sentence">8. Piję <span class="highlight">gorąc___</span> herbatę.</div>
+            <p style="margin: 5px 0; font-size: 14px; color: #666;">Wpisz samą końcówkę (np. ą, om, ę):</p>
             <div style="display:flex; align-items:center;">
                 <input type="text" id="input_q8" placeholder="...">
-                <button class="check-btn" onclick="checkInput('q8', 'input_q8', ['im'])">Sprawdź</button>
+                <button class="check-btn" onclick="checkInput('q8', 'input_q8', ['ą'])">Sprawdź</button>
             </div>
             <div class="feedback" id="fb-input_q8"></div>
         </div>
@@ -227,7 +180,7 @@
         <h2 style="font-size: 28px; border: none; justify-content: center; margin-top: 0;">&#127942; WYNIKI &#127942;</h2>
         
         <div style="font-size: 18px; margin-bottom: 20px;">
-            Imię i nazwisko: <input type="text" placeholder="..." style="width: 250px; padding: 5px; font-weight: bold; background: white; border: 1px solid #ccc; font-family: sans-serif;">
+            Imię i nazwisko: <input type="text" id="student-name" placeholder="Wpisz imię..." style="width: 250px; padding: 8px; font-weight: bold; background: white; border: 2px solid var(--primary); border-radius: 5px;">
         </div>
 
         <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0;">
@@ -243,13 +196,7 @@
 
         <h3 style="text-align: left; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">&#128202; Analiza Tematów:</h3>
         <table class="diagnostic-table">
-            <thead>
-                <tr>
-                    <th>Dział / Temat</th>
-                    <th>Wynik</th>
-                    <th>Ocena</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Dział / Temat</th><th>Wynik</th><th>Ocena</th></tr></thead>
             <tbody id="diagnostic-body"></tbody>
         </table>
 
@@ -258,21 +205,25 @@
             <ul id="recommendation-list" style="margin-top: 5px; padding-left: 20px;"></ul>
         </div>
 
-        <button onclick="window.print()" style="background-color: #37474f; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; border: none; margin-top: 30px;">&#128424; Drukuj / Zapisz PDF</button>
+        <button id="send-results-btn" onclick="sendToGoogleSheets()" style="background-color: #0277bd; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; border: none; margin-top: 20px; width: 100%; max-width: 300px;">📤 Wyślij wynik do Nauczyciela</button>
+        <br>
+        <button onclick="window.print()" style="background-color: #546e7a; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; border: none; margin-top: 15px;">🖨️ Drukuj / Zapisz PDF</button>
     </div>
 </div>
 
 <script>
-    // --- KONFIGURACJA (AI podmienia te wartości) ---
-    const STORAGE_KEY = 'przymiotniki_kl4_v1'; 
-    
-    // Kategorie diagnostyczne
-    const catNames = {
-        'rodzaj': 'Dopasowanie do rodzaju (Mianownik)',
-        'przypadki': 'Odmiana przez przypadki',
-        'koncowki': 'Znajomość końcówek (-ego, -im itp.)'
+    // --- KONFIGURACJA ---
+    // !!! WAŻNE: Tutaj wklej swój link Web App z Google Apps Script !!!
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_ByEj8poSy36m8iehCHYmislHj0sTvHLRhQPUkgic_L5Ss8fXrF_a2THkm-hpuZL0OA/exec"; 
+
+    // Te wartości AI podmieni przy generowaniu nowego testu
+    const STORAGE_KEY = 'przymiotniki_k4_v2_google'; 
+    const catNames = { 
+        'rodzaj': 'Rodzaj (on/ona/ono)',
+        'przypadki': 'Poprawna końcówka (Przypadki)',
+        'pisownia': 'Trudne końcówki (np. -ą/-om)'
     };
-    // ------------------------------------------------
+    // ---------------------
 
     let state = { score: 0, answeredIds: {}, startTime: null, endTime: null, isFinished: false };
     let timerInterval;
@@ -282,8 +233,6 @@
         if (!state.startTime) { state.startTime = Date.now(); saveState(); }
         if(!state.isFinished) { timerInterval = setInterval(updateTimer, 1000); } 
         else { showFinalResult(false); document.getElementById('timer').innerText = formatTime(state.endTime - state.startTime); }
-        
-        // Policz pytania
         document.getElementById('final-max').innerText = document.querySelectorAll('.question-box').length;
     });
 
@@ -297,6 +246,7 @@
         return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
     }
 
+    // --- LOGIKA PYTAŃ ---
     function checkChoice(qId, btn, isCorrect) {
         if (state.answeredIds[qId] !== undefined || state.isFinished) return;
         state.answeredIds[qId] = isCorrect;
@@ -305,6 +255,7 @@
         const parent = btn.parentElement;
         const allBtns = parent.querySelectorAll('.choice-btn');
         allBtns.forEach(b => b.disabled = true);
+        parent.parentElement.classList.add('locked');
 
         if(isCorrect) {
             btn.classList.add('selected-correct');
@@ -331,6 +282,8 @@
         if(isCorrect) state.score++;
 
         input.disabled = true; btn.disabled = true;
+        input.closest('.question-box').classList.add('locked');
+
         if(isCorrect) {
             input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9';
             feedback.innerHTML = '<span class="correct">&#10004; Dobrze!</span>';
@@ -341,6 +294,7 @@
         saveState();
     }
 
+    // --- ZAPIS STANU ---
     function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
     function loadState() {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -351,33 +305,30 @@
             const box = document.getElementById(qId);
             if(!box) continue;
             box.classList.add('locked');
-            const btns = box.querySelectorAll('.choice-btn');
-            btns.forEach(b => b.disabled = true);
-            
+            box.querySelectorAll('button').forEach(b => b.disabled = true);
             const input = box.querySelector('input');
             if(input) {
-                input.disabled = true; box.querySelector('.check-btn').disabled = true;
+                input.disabled = true; 
                 if(isCorrect) { input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9'; }
                 else { input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee'; }
             }
-            
             const fb = box.querySelector('.feedback');
-            if(fb) fb.innerHTML = isCorrect ? '<span class="correct">&#10004; Rozwiązane OK</span>' : '<span class="wrong">&#10006; Błąd</span>';
+            if(fb) fb.innerHTML = isCorrect ? '<span class="correct">&#10004; OK</span>' : '<span class="wrong">&#10006; Błąd</span>';
         }
     }
-    function resetTest() {
-        if(confirm('Zresetować test?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
-    }
+    function resetTest() { if(confirm('Zresetować?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+
+    // --- FINAŁ ---
     function finishTest() {
         if(!confirm("Zakończyć test?")) return;
         clearInterval(timerInterval); state.isFinished = true; state.endTime = Date.now();
         saveState(); showFinalResult(true);
     }
+
     function showFinalResult(scroll) {
         document.getElementById('final-score').innerText = state.score;
         if(state.endTime) document.getElementById('final-time').innerText = formatTime(state.endTime - state.startTime);
         
-        // Diagnoza
         let stats = {};
         document.querySelectorAll('.question-box').forEach(box => {
             let cat = box.getAttribute('data-category');
@@ -396,16 +347,46 @@
             let p = Math.round((data.correct / data.total) * 100);
             let cls = p >= 75 ? 'diag-good' : (p >= 50 ? 'diag-ok' : 'diag-bad');
             tbody.innerHTML += `<tr><td>${catNames[cat] || cat}</td><td>${data.correct}/${data.total}</td><td class="${cls}">${p}%</td></tr>`;
-            
             if(p < 60) {
                 issues = true;
-                recList.innerHTML += `<li>Słaby wynik w dziale: <b>${catNames[cat] || cat}</b></li>`;
+                recList.innerHTML += `<li>Słabo: <b>${catNames[cat] || cat}</b></li>`;
             }
         }
         if(issues) document.getElementById('recommendation-box').style.display = 'block';
         document.getElementById('final-result').style.display = 'block';
         document.getElementById('finish-btn').style.display = 'none';
         if(scroll) document.getElementById('final-result').scrollIntoView({behavior: 'smooth'});
+    }
+
+    // --- WYSYŁKA DO GOOGLE SHEETS ---
+    function sendToGoogleSheets() {
+        const btn = document.getElementById('send-results-btn');
+        const nameInput = document.getElementById('student-name');
+        const studentName = nameInput.value.trim();
+
+        if(studentName.length < 3) { alert("Wpisz imię i nazwisko!"); nameInput.focus(); return; }
+        if(GOOGLE_SCRIPT_URL.includes("WKLEJ")) { alert("Błąd konfiguracji: Nauczyciel nie podał linku do arkusza!"); return; }
+
+        btn.disabled = true; btn.innerText = "⏳ Wysyłanie...";
+
+        const dataToSend = {
+            uczen: studentName,
+            temat: document.getElementById('test-title').innerText + " - " + document.getElementById('test-subtitle').innerText,
+            wynik: state.score + " / " + document.getElementById('final-max').innerText,
+            czas: document.getElementById('final-time').innerText,
+            diagnoza: Array.from(document.querySelectorAll('#diagnostic-body tr')).map(r => r.cells[0].innerText + " (" + r.cells[2].innerText + ")").join(", ")
+        };
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST", mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dataToSend)
+        }).then(() => {
+            btn.innerText = "✅ Wynik wysłany!"; btn.style.backgroundColor = "#2e7d32";
+            alert("Pomyślnie wysłano wynik do nauczyciela!");
+        }).catch(err => {
+            console.error(err); btn.innerText = "❌ Błąd"; alert("Wystąpił błąd. Zrób zdjęcie ekranu.");
+        });
     }
 </script>
 </body>
