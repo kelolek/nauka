@@ -5,179 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratorium Miar i Wag: Klasa 4</title>
     <style>
+        /* --- STYLE SZABLONU MASTER --- */
         :root {
-            --primary: #0277bd; /* Morski niebieski */
-            --primary-light: #e1f5fe;
-            --accent: #ff6f00; /* Bursztynowy */
-            --success: #2e7d32;
-            --error: #c62828;
-            --bg-grid: #f5f5f5;
-            --text-main: #263238;
+            --primary: #0277bd; --primary-light: #e1f5fe; --accent: #ff6f00;
+            --success: #2e7d32; --error: #c62828; --bg-grid: #f5f5f5; --text-main: #263238;
         }
-
         body {
             font-family: 'Segoe UI', 'Verdana', sans-serif;
             background-color: var(--bg-grid);
-            /* Tło w kratkę */
-            background-image: 
-                linear-gradient(#cfd8dc 1px, transparent 1px),
-                linear-gradient(90deg, #cfd8dc 1px, transparent 1px);
-            background-size: 20px 20px;
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            background-image: linear-gradient(#cfd8dc 1px, transparent 1px), linear-gradient(90deg, #cfd8dc 1px, transparent 1px);
+            background-size: 20px 20px; color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center;
         }
-
         .container {
-            background-color: #ffffff;
-            width: 100%;
-            max-width: 900px;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            border-top: 12px solid var(--primary);
-            position: relative;
+            background-color: #ffffff; width: 100%; max-width: 900px; padding: 40px; border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 12px solid var(--primary); position: relative;
         }
-
         h1 { color: var(--primary); text-align: center; margin-bottom: 5px; font-size: 32px; letter-spacing: 1px; }
-        h2 { 
-            color: var(--primary); 
-            border-bottom: 2px solid #b0bec5; 
-            padding-bottom: 10px; 
-            margin-top: 50px;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        .instruction {
-            background-color: var(--primary-light);
-            padding: 15px;
-            border-radius: 8px;
-            color: #01579b;
-            font-weight: 600;
-            margin-bottom: 25px;
-            border-left: 5px solid var(--primary);
-        }
-
-        /* --- Timer Style --- */
+        h2 { color: var(--primary); border-bottom: 2px solid #b0bec5; padding-bottom: 10px; margin-top: 50px; display: flex; align-items: center; gap: 10px; }
+        .instruction { background-color: var(--primary-light); padding: 15px; border-radius: 8px; color: #01579b; font-weight: 600; margin-bottom: 25px; border-left: 5px solid var(--primary); }
+        
+        /* TIMER */
         #timer-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #263238;
-            color: #00e676; /* Cyfrowy zielony */
-            font-family: 'Consolas', monospace;
-            font-size: 24px;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 1000;
-            border: 2px solid #fff;
+            position: fixed; top: 20px; right: 20px; background: #263238; color: #00e676;
+            font-family: 'Consolas', monospace; font-size: 24px; padding: 10px 20px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; border: 2px solid #fff;
         }
 
-        /* Question Box */
-        .question-box {
-            background-color: #fff;
-            border: 2px solid #eceff1;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            transition: all 0.3s;
-        }
-        .question-box:hover {
-            border-color: #90caf9;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        /* Style dla zablokowanego pytania */
-        .question-box.locked {
-            background-color: #fafafa;
-            border-color: #e0e0e0;
-            opacity: 0.9;
-        }
-
+        /* PYTANIA */
+        .question-box { background-color: #fff; border: 2px solid #eceff1; border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: all 0.3s; }
+        .question-box:hover { border-color: #90caf9; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .question-box.locked { background-color: #fafafa; border-color: #e0e0e0; opacity: 0.9; pointer-events: none; }
         .sentence { font-size: 20px; margin-bottom: 15px; font-weight: 600; }
-        .math-highlight { color: var(--primary); font-weight: bold; font-family: 'Consolas', monospace; font-size: 1.1em; }
+        .highlight { color: var(--primary); font-weight: bold; font-family: 'Consolas', monospace; font-size: 1.1em; }
 
-        /* Buttons */
+        /* BUTTONS */
         .options { display: flex; gap: 10px; flex-wrap: wrap; }
         button.choice-btn {
             padding: 12px 20px; font-size: 18px; cursor: pointer; background-color: white;
-            border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; transition: 0.2s;
-            flex: 1 1 auto; max-width: 180px; font-weight: bold; font-family: 'Consolas', monospace;
+            border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; transition: 0.2s; flex: 1 1 auto; max-width: 250px; font-weight: bold;
         }
         button.choice-btn:hover:not(:disabled) { background-color: var(--primary-light); transform: translateY(-2px); }
-        
-        /* Disabled Buttons (Locked) */
-        button.choice-btn:disabled {
-            cursor: not-allowed;
-            border-color: #ccc;
-            color: #999;
-            background-color: #f5f5f5;
-            transform: none !important;
-        }
-        button.choice-btn.selected-wrong {
-            background-color: #ffcdd2 !important; border-color: #c62828 !important; color: #c62828 !important;
-        }
-        button.choice-btn.selected-correct {
-            background-color: #c8e6c9 !important; border-color: #2e7d32 !important; color: #2e7d32 !important;
-        }
-        /* Pokazanie poprawnej odpowiedzi gdy uczeń wybrał źle */
-        button.choice-btn.show-correct {
-            background-color: #fff !important;
-            border-color: #2e7d32 !important;
-            color: #2e7d32 !important;
-            box-shadow: 0 0 10px #c8e6c9;
-        }
+        button.choice-btn:disabled { cursor: not-allowed; border-color: #ccc; color: #999; background-color: #f5f5f5; transform: none !important; }
+        button.choice-btn.selected-wrong { background-color: #ffcdd2 !important; border-color: #c62828 !important; color: #c62828 !important; }
+        button.choice-btn.selected-correct { background-color: #c8e6c9 !important; border-color: #2e7d32 !important; color: #2e7d32 !important; }
+        button.choice-btn.show-correct { background-color: #fff !important; border-color: #2e7d32 !important; color: #2e7d32 !important; box-shadow: 0 0 10px #c8e6c9; }
 
-        /* Inputs */
-        input[type="text"] {
-            padding: 8px 12px; font-size: 20px; border: 2px solid #b0bec5; border-radius: 8px;
-            width: 140px; text-align: center; color: #333; font-weight: bold; background-color: #fff;
-            font-family: 'Consolas', monospace;
-        }
-        input[type="text"]:disabled {
-            background-color: #eceff1;
-            color: #546e7a;
-            border-color: #cfd8dc;
-        }
-        
-        .check-btn {
-            background-color: var(--primary); color: white; border: none; padding: 10px 20px;
-            font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px;
-        }
+        /* INPUTS */
+        input[type="text"] { padding: 8px 12px; font-size: 20px; border: 2px solid #b0bec5; border-radius: 8px; width: 160px; text-align: center; color: #333; font-weight: bold; background-color: #fff; }
+        input[type="text"]:disabled { background-color: #eceff1; color: #546e7a; border-color: #cfd8dc; }
+        .check-btn { background-color: var(--primary); color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px; }
         .check-btn:hover:not(:disabled) { background-color: #01579b; }
         .check-btn:disabled { background-color: #b0bec5; cursor: default; }
 
-        /* Feedback */
+        /* WYNIKI */
         .feedback { margin-top: 12px; font-weight: bold; font-size: 16px; min-height: 24px; }
-        .correct { color: var(--success); }
-        .wrong { color: var(--error); }
-
-        /* Results */
-        .result-section {
-            display: none; margin-top: 40px; padding: 30px; background-color: #fff;
-            border: 4px solid var(--primary); border-radius: 15px; text-align: center;
-        }
-        
-        .diagnostic-table {
-            width: 100%; border-collapse: collapse; margin: 20px 0;
-        }
-        .diagnostic-table th, .diagnostic-table td {
-            border: 1px solid #cfd8dc; padding: 12px; text-align: left;
-        }
+        .correct { color: var(--success); } .wrong { color: var(--error); }
+        .result-section { display: none; margin-top: 40px; padding: 30px; background-color: #fff; border: 4px solid var(--primary); border-radius: 15px; text-align: center; }
+        .diagnostic-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .diagnostic-table th, .diagnostic-table td { border: 1px solid #cfd8dc; padding: 12px; text-align: left; }
         .diagnostic-table th { background-color: var(--primary); color: white; }
-        .diagnostic-table tr:nth-child(even) { background-color: #f1f8e9; }
-        
-        .diag-bad { color: var(--error); font-weight: bold; }
-        .diag-ok { color: #f57c00; font-weight: bold; }
-        .diag-good { color: var(--success); font-weight: bold; }
+        .diag-bad { color: var(--error); font-weight: bold; } .diag-ok { color: #f57c00; font-weight: bold; } .diag-good { color: var(--success); font-weight: bold; }
 
         @media print {
-            #timer-box, #reset-btn, #finish-btn { display: none !important; }
+            #timer-box, #reset-btn, #finish-btn, #send-results-btn { display: none !important; }
             .result-section { display: block !important; border: 2px solid black; }
-            body { background: white; }
-            .container { box-shadow: none; border: none; width: 100%; }
+            body { background: white; } .container { box-shadow: none; border: none; width: 100%; }
         }
     </style>
 </head>
@@ -187,172 +79,172 @@
 <button id="reset-btn" onclick="resetTest()" style="position:fixed; top:70px; right:20px; background:#ef5350; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; z-index:999;">Resetuj</button>
 
 <div class="container">
-    <h1>&#9878; Laboratorium Miar i Wag &#128207;</h1>
-    <p style="text-align: center; color: #546e7a;">Sprawdzian wiedzy: Długość i Masa &bull; Klasa 4</p>
+    <h1 id="test-title">&#128207; Laboratorium Miar i Wag &#9878;</h1>
+    <p id="test-subtitle" style="text-align: center; color: #546e7a;">Matematyka Klasa 4 &bull; Długość i Masa</p>
     
     <div style="text-align: center; background: #fff3e0; padding: 10px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #ffe0b2; color: #e65100;">
         <strong>&#9888; UWAGA:</strong> W tym teście nie ma możliwości poprawiania błędów! <br>Zastanów się dobrze, zanim klikniesz odpowiedź.
     </div>
 
+    <div id="questions-container">
 
-    <h2>1. Linijka i Taśma (Długość)</h2>
-    <p class="instruction">Wybierz poprawną odpowiedź. Pamiętaj: 1 km = 1000 m, 1 m = 100 cm, 1 cm = 10 mm.</p>
+        <h2>1. Linijka i Taśma (Długość)</h2>
+        <p class="instruction">Wybierz poprawną odpowiedź. Pamiętaj: 1 km = 1000 m, 1 m = 100 cm, 1 cm = 10 mm.</p>
 
-    <div class="question-box" id="q1" data-category="dlugosc_proste">
-        <div class="sentence">1 cm to ile milimetrów?</div>
-        <div class="options">
-            <button class="choice-btn" onclick="checkChoice('q1', this, false)">1 mm</button>
-            <button class="choice-btn" onclick="checkChoice('q1', this, true)">10 mm</button>
-            <button class="choice-btn" onclick="checkChoice('q1', this, false)">100 mm</button>
-        </div><div class="feedback"></div>
+        <div class="question-box" id="q1" data-category="dlugosc">
+            <div class="sentence">1 cm to ile milimetrów?</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q1', this, false)">1 mm</button>
+                <button class="choice-btn" onclick="checkChoice('q1', this, true)">10 mm</button>
+                <button class="choice-btn" onclick="checkChoice('q1', this, false)">100 mm</button>
+            </div><div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q2" data-category="dlugosc">
+            <div class="sentence">3 metry to ile centymetrów?</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q2', this, true)">300 cm</button>
+                <button class="choice-btn" onclick="checkChoice('q2', this, false)">30 cm</button>
+                <button class="choice-btn" onclick="checkChoice('q2', this, false)">3000 cm</button>
+            </div><div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q3" data-category="dlugosc">
+            <div class="sentence">Ile metrów ma pół kilometra?</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q3', this, false)">50 m</button>
+                <button class="choice-btn" onclick="checkChoice('q3', this, false)">100 m</button>
+                <button class="choice-btn" onclick="checkChoice('q3', this, true)">500 m</button>
+            </div><div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q4" data-category="dlugosc">
+            <div class="sentence">Wpisz liczbę: <span class="highlight">5 km</span> = ... m</div>
+            <input type="text" id="inp1">
+            <button class="check-btn" onclick="checkInput('q4', 'inp1', ['5000', '5 000'])">Zatwierdź</button>
+            <div class="feedback" id="fb-inp1"></div>
+        </div>
+
+
+        <h2>2. Sklepowa Waga (Masa)</h2>
+        <p class="instruction">Pamiętaj: 1 kg = 100 dag, 1 dag = 10 g, 1 t = 1000 kg.</p>
+
+        <div class="question-box" id="q5" data-category="masa">
+            <div class="sentence">1 kilogram to ile dekagramów?</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q5', this, false)">10 dag</button>
+                <button class="choice-btn" onclick="checkChoice('q5', this, true)">100 dag</button>
+                <button class="choice-btn" onclick="checkChoice('q5', this, false)">1000 dag</button>
+            </div><div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q6" data-category="masa">
+            <div class="sentence">Ile kilogramów ma <span class="highlight">2 t</span> (dwie tony)?</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q6', this, true)">2000 kg</button>
+                <button class="choice-btn" onclick="checkChoice('q6', this, false)">200 kg</button>
+                <button class="choice-btn" onclick="checkChoice('q6', this, false)">20 kg</button>
+            </div><div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q7" data-category="masa">
+            <div class="sentence">Wpisz liczbę: <span class="highlight">30 dag</span> = ... g</div>
+            <input type="text" id="inp2">
+            <button class="check-btn" onclick="checkInput('q7', 'inp2', ['300'])">Zatwierdź</button>
+            <div class="feedback" id="fb-inp2"></div>
+        </div>
+
+        <div class="question-box" id="q8" data-category="masa">
+            <div class="sentence">Wpisz liczbę: <span class="highlight">5000 g</span> = ... kg</div>
+            <input type="text" id="inp3">
+            <button class="check-btn" onclick="checkInput('q8', 'inp3', ['5'])">Zatwierdź</button>
+            <div class="feedback" id="fb-inp3"></div>
+        </div>
+
+
+        <h2>3. Mistrz Precyzji (Złożone)</h2>
+        <p class="instruction">Uwaga! To najtrudniejsza część. Nie zgub zer! Np. 1m 5cm to 105cm.</p>
+
+        <div class="question-box" id="q9" data-category="zlozone">
+            <div class="sentence"><span class="highlight">2 m 4 cm</span> = ... cm</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q9', this, false)">24 cm</button>
+                <button class="choice-btn" onclick="checkChoice('q9', this, true)">204 cm</button>
+                <button class="choice-btn" onclick="checkChoice('q9', this, false)">240 cm</button>
+            </div><div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q10" data-category="zlozone">
+            <div class="sentence"><span class="highlight">4 kg 5 dag</span> = ... dag</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q10', this, false)">45 dag</button>
+                <button class="choice-btn" onclick="checkChoice('q10', this, false)">450 dag</button>
+                <button class="choice-btn" onclick="checkChoice('q10', this, true)">405 dag</button>
+            </div><div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q11" data-category="zlozone">
+            <div class="sentence">Wpisz liczbę: <span class="highlight">1 km 20 m</span> = ... m</div>
+            <input type="text" id="inp4">
+            <button class="check-btn" onclick="checkInput('q11', 'inp4', ['1020', '1 020'])">Zatwierdź</button>
+            <div class="feedback" id="fb-inp4"></div>
+        </div>
+
+        <div class="question-box" id="q12" data-category="zlozone">
+            <div class="sentence">Wpisz liczbę: <span class="highlight">3 m 50 cm</span> = ... cm</div>
+            <input type="text" id="inp5">
+            <button class="check-btn" onclick="checkInput('q12', 'inp5', ['350'])">Zatwierdź</button>
+            <div class="feedback" id="fb-inp5"></div>
+        </div>
+        
+        <div class="question-box" id="q13" data-category="zlozone">
+            <div class="sentence">Wpisz liczbę: <span class="highlight">6 cm 5 mm</span> = ... mm</div>
+            <input type="text" id="inp6">
+            <button class="check-btn" onclick="checkInput('q13', 'inp6', ['65'])">Zatwierdź</button>
+            <div class="feedback" id="fb-inp6"></div>
+        </div>
+
+
+        <h2>4. Co jest większe?</h2>
+        <p class="instruction">Wstaw znak: < (mniejsze), > (większe) lub = (równe).</p>
+
+        <div class="question-box" id="q14" data-category="porownanie">
+            <div class="sentence">350 cm ... 3 m 60 cm</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q14', this, true)">&lt;</button>
+                <button class="choice-btn" onclick="checkChoice('q14', this, false)">&gt;</button>
+                <button class="choice-btn" onclick="checkChoice('q14', this, false)">=</button>
+            </div><div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q15" data-category="porownanie">
+            <div class="sentence">2 kg ... 200 dag</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q15', this, false)">&lt;</button>
+                <button class="choice-btn" onclick="checkChoice('q15', this, false)">&gt;</button>
+                <button class="choice-btn" onclick="checkChoice('q15', this, true)">=</button>
+            </div><div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q16" data-category="porownanie">
+            <div class="sentence">1 tona ... 900 kg</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q16', this, false)">&lt;</button>
+                <button class="choice-btn" onclick="checkChoice('q16', this, true)">&gt;</button>
+                <button class="choice-btn" onclick="checkChoice('q16', this, false)">=</button>
+            </div><div class="feedback"></div>
+        </div>
+
     </div>
-
-    <div class="question-box" id="q2" data-category="dlugosc_proste">
-        <div class="sentence">3 metry to ile centymetrów?</div>
-        <div class="options">
-            <button class="choice-btn" onclick="checkChoice('q2', this, true)">300 cm</button>
-            <button class="choice-btn" onclick="checkChoice('q2', this, false)">30 cm</button>
-            <button class="choice-btn" onclick="checkChoice('q2', this, false)">3000 cm</button>
-        </div><div class="feedback"></div>
-    </div>
-
-    <div class="question-box" id="q3" data-category="dlugosc_proste">
-        <div class="sentence">Ile metrów ma pół kilometra?</div>
-        <div class="options">
-            <button class="choice-btn" onclick="checkChoice('q3', this, false)">50 m</button>
-            <button class="choice-btn" onclick="checkChoice('q3', this, false)">100 m</button>
-            <button class="choice-btn" onclick="checkChoice('q3', this, true)">500 m</button>
-        </div><div class="feedback"></div>
-    </div>
-
-    <div class="question-box" id="q4" data-category="dlugosc_proste">
-        <div class="sentence">Wpisz liczbę: <span class="math-highlight">5 km</span> = ... m</div>
-        <input type="text" id="inp1">
-        <button class="check-btn" onclick="checkInput('q4', 'inp1', ['5000', '5 000'])">Zatwierdź</button>
-        <div class="feedback" id="fb-inp1"></div>
-    </div>
-
-
-    <h2>2. Sklepowa Waga (Masa)</h2>
-    <p class="instruction">Pamiętaj: 1 kg = 100 dag, 1 dag = 10 g, 1 t = 1000 kg.</p>
-
-    <div class="question-box" id="q5" data-category="masa_proste">
-        <div class="sentence">1 kilogram to ile dekagramów?</div>
-        <div class="options">
-            <button class="choice-btn" onclick="checkChoice('q5', this, false)">10 dag</button>
-            <button class="choice-btn" onclick="checkChoice('q5', this, true)">100 dag</button>
-            <button class="choice-btn" onclick="checkChoice('q5', this, false)">1000 dag</button>
-        </div><div class="feedback"></div>
-    </div>
-
-    <div class="question-box" id="q6" data-category="masa_proste">
-        <div class="sentence">Ile kilogramów ma <span class="math-highlight">2 t</span> (dwie tony)?</div>
-        <div class="options">
-            <button class="choice-btn" onclick="checkChoice('q6', this, true)">2000 kg</button>
-            <button class="choice-btn" onclick="checkChoice('q6', this, false)">200 kg</button>
-            <button class="choice-btn" onclick="checkChoice('q6', this, false)">20 kg</button>
-        </div><div class="feedback"></div>
-    </div>
-
-    <div class="question-box" id="q7" data-category="masa_proste">
-        <div class="sentence">Wpisz liczbę: <span class="math-highlight">30 dag</span> = ... g</div>
-        <input type="text" id="inp2">
-        <button class="check-btn" onclick="checkInput('q7', 'inp2', ['300'])">Zatwierdź</button>
-        <div class="feedback" id="fb-inp2"></div>
-    </div>
-
-    <div class="question-box" id="q8" data-category="masa_proste">
-        <div class="sentence">Wpisz liczbę: <span class="math-highlight">5000 g</span> = ... kg</div>
-        <input type="text" id="inp3">
-        <button class="check-btn" onclick="checkInput('q8', 'inp3', ['5'])">Zatwierdź</button>
-        <div class="feedback" id="fb-inp3"></div>
-    </div>
-
-
-    <h2>3. Mistrz Precyzji (Złożone)</h2>
-    <p class="instruction">Uwaga! To najtrudniejsza część. Nie zgub zer! Np. 1m 5cm to 105cm.</p>
-
-    <div class="question-box" id="q9" data-category="zlozone_zera">
-        <div class="sentence"><span class="math-highlight">2 m 4 cm</span> = ... cm</div>
-        <div class="options">
-            <button class="choice-btn" onclick="checkChoice('q9', this, false)">24 cm</button>
-            <button class="choice-btn" onclick="checkChoice('q9', this, true)">204 cm</button>
-            <button class="choice-btn" onclick="checkChoice('q9', this, false)">240 cm</button>
-        </div><div class="feedback"></div>
-    </div>
-
-    <div class="question-box" id="q10" data-category="zlozone_zera">
-        <div class="sentence"><span class="math-highlight">4 kg 5 dag</span> = ... dag</div>
-        <div class="options">
-            <button class="choice-btn" onclick="checkChoice('q10', this, false)">45 dag</button>
-            <button class="choice-btn" onclick="checkChoice('q10', this, false)">450 dag</button>
-            <button class="choice-btn" onclick="checkChoice('q10', this, true)">405 dag</button>
-        </div><div class="feedback"></div>
-    </div>
-
-    <div class="question-box" id="q11" data-category="zlozone_zera">
-        <div class="sentence">Wpisz liczbę: <span class="math-highlight">1 km 20 m</span> = ... m</div>
-        <input type="text" id="inp4">
-        <button class="check-btn" onclick="checkInput('q11', 'inp4', ['1020', '1 020'])">Zatwierdź</button>
-        <div class="feedback" id="fb-inp4"></div>
-    </div>
-
-    <div class="question-box" id="q12" data-category="zlozone_zera">
-        <div class="sentence">Wpisz liczbę: <span class="math-highlight">3 m 50 cm</span> = ... cm</div>
-        <input type="text" id="inp5">
-        <button class="check-btn" onclick="checkInput('q12', 'inp5', ['350'])">Zatwierdź</button>
-        <div class="feedback" id="fb-inp5"></div>
-    </div>
-    
-    <div class="question-box" id="q13" data-category="zlozone_zera">
-        <span class="hint">1 cm = 10 mm. Ile to będzie 6 cm i 5 mm?</span>
-        <div class="sentence">Wpisz liczbę: <span class="math-highlight">6 cm 5 mm</span> = ... mm</div>
-        <input type="text" id="inp6">
-        <button class="check-btn" onclick="checkInput('q13', 'inp6', ['65'])">Zatwierdź</button>
-        <div class="feedback" id="fb-inp6"></div>
-    </div>
-
-
-    <h2>4. Co jest większe?</h2>
-    <p class="instruction">Wstaw znak: < (mniejsze), > (większe) lub = (równe).</p>
-
-    <div class="question-box" id="q14" data-category="porownywanie">
-        <div class="sentence">350 cm ... 3 m 60 cm</div>
-        <div class="options">
-            <button class="choice-btn" onclick="checkChoice('q14', this, true)">&lt;</button>
-            <button class="choice-btn" onclick="checkChoice('q14', this, false)">&gt;</button>
-            <button class="choice-btn" onclick="checkChoice('q14', this, false)">=</button>
-        </div><div class="feedback"></div>
-    </div>
-
-    <div class="question-box" id="q15" data-category="porownywanie">
-        <div class="sentence">2 kg ... 200 dag</div>
-        <div class="options">
-            <button class="choice-btn" onclick="checkChoice('q15', this, false)">&lt;</button>
-            <button class="choice-btn" onclick="checkChoice('q15', this, false)">&gt;</button>
-            <button class="choice-btn" onclick="checkChoice('q15', this, true)">=</button>
-        </div><div class="feedback"></div>
-    </div>
-
-    <div class="question-box" id="q16" data-category="porownywanie">
-        <div class="sentence">1 tona ... 900 kg</div>
-        <div class="options">
-            <button class="choice-btn" onclick="checkChoice('q16', this, false)">&lt;</button>
-            <button class="choice-btn" onclick="checkChoice('q16', this, true)">&gt;</button>
-            <button class="choice-btn" onclick="checkChoice('q16', this, false)">=</button>
-        </div><div class="feedback"></div>
-    </div>
-
-
     <div style="text-align: center; margin-top: 60px; margin-bottom: 40px;">
-        <button id="finish-btn" onclick="finishTest()" style="padding: 18px 50px; background-color: var(--accent); color: white; font-size: 22px; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: bold; transition: transform 0.2s;">&#127937; ZAKOŃCZ I ZOBACZ WYNIK</button>
+        <button id="finish-btn" onclick="finishTest()" style="padding: 18px 50px; background-color: var(--accent); color: white; font-size: 22px; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: bold; transition: transform 0.2s;">&#127937; ZAKOŃCZ TEST</button>
     </div>
 
     <div id="final-result" class="result-section">
-        <h2 style="font-size: 28px; border: none; justify-content: center; margin-top: 0;">&#127942; RAPORT KOŃCOWY &#127942;</h2>
+        <h2 style="font-size: 28px; border: none; justify-content: center; margin-top: 0;">&#127942; WYNIKI &#127942;</h2>
         
         <div style="font-size: 18px; margin-bottom: 20px;">
-            Imię ucznia: <input type="text" placeholder="..." style="width: 200px; padding: 5px; font-weight: bold; background: white; border: 1px solid #ccc; font-family: sans-serif;">
+            Imię i nazwisko: <input type="text" id="student-name" placeholder="Wpisz imię..." style="width: 250px; padding: 8px; font-weight: bold; background: white; border: 2px solid var(--primary); border-radius: 5px;">
         </div>
 
         <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0;">
@@ -366,305 +258,204 @@
             </div>
         </div>
 
-        <h3 style="text-align: left; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">&#128202; Analiza Szczegółowa:</h3>
+        <h3 style="text-align: left; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">&#128202; Analiza Tematów:</h3>
         <table class="diagnostic-table">
-            <thead>
-                <tr>
-                    <th>Obszar wiedzy</th>
-                    <th>Wynik</th>
-                    <th>Ocena</th>
-                </tr>
-            </thead>
-            <tbody id="diagnostic-body">
-                </tbody>
+            <thead><tr><th>Dział / Temat</th><th>Wynik</th><th>Ocena</th></tr></thead>
+            <tbody id="diagnostic-body"></tbody>
         </table>
 
         <div id="recommendation-box" style="background-color: #fff3e0; padding: 15px; border-radius: 8px; border-left: 5px solid var(--accent); text-align: left; display: none; margin-top: 20px;">
-            <strong>&#128161; Wnioski dla nauczyciela/rodzica:</strong>
+            <strong>&#128161; Do powtórzenia:</strong>
             <ul id="recommendation-list" style="margin-top: 5px; padding-left: 20px;"></ul>
         </div>
 
-        <button onclick="window.print()" style="background-color: #37474f; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; border: none; margin-top: 30px;">&#128424; Wydrukuj Raport</button>
+        <button id="send-results-btn" onclick="sendToGoogleSheets()" style="background-color: #0277bd; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; border: none; margin-top: 20px; width: 100%; max-width: 300px;">📤 Wyślij wynik do Nauczyciela</button>
+        <br>
+        <button onclick="window.print()" style="background-color: #546e7a; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; border: none; margin-top: 15px;">🖨️ Drukuj / Zapisz PDF</button>
     </div>
-
 </div>
 
 <script>
-    const STORAGE_KEY = 'math_grade4_units_oneshot_v1'; 
-    let state = {
-        score: 0,
-        answeredIds: {}, // Mapa: id_pytania -> true/false (czy poprawne)
-        startTime: null,
-        endTime: null,
-        isFinished: false
+    // --- KONFIGURACJA DLA TEGO TESTU ---
+    
+    // !!! WAŻNE: Wklej poniżej swój link Web App z Google Apps Script:
+    const GOOGLE_SCRIPT_URL = "WKLEJ_TU_SWOJ_LINK_Z_GOOGLE_APPS_SCRIPT"; 
+    
+    // Unikalne ID testu (dzięki temu wyniki się nie mieszają przy odświeżaniu)
+    const STORAGE_KEY = 'math_grade4_measures_final_v2'; 
+    
+    // Nazwy kategorii do raportu
+    const catNames = { 
+        'dlugosc': 'Długość (podstawy)', 
+        'masa': 'Masa (podstawy)',
+        'zlozone': 'Złożone (np. 3m 5cm)',
+        'porownanie': 'Porównywanie wielkości'
     };
+    // -------------------------------------
 
+    let state = { score: 0, answeredIds: {}, startTime: null, endTime: null, isFinished: false };
     let timerInterval;
-
-    const catNames = {
-        'dlugosc_proste': 'Długość - podstawy (mm, cm, m, km)',
-        'masa_proste': 'Masa - podstawy (g, dag, kg, t)',
-        'zlozone_zera': 'Złożone (np. 4m 5cm) - "Pułapka Zera"',
-        'porownywanie': 'Porównywanie wielkości (<, >, =)'
-    };
-
-    // --- Inicjalizacja ---
 
     window.addEventListener('load', () => {
         loadState();
-        if (!state.startTime) {
-            state.startTime = Date.now();
-            saveState();
-        }
-        
-        // Start Timer
-        if(!state.isFinished) {
-            timerInterval = setInterval(updateTimer, 1000);
-        } else {
-            showFinalResult(false); // Pokaż wynik bez animacji
-            document.getElementById('timer').innerText = formatTime(state.endTime - state.startTime);
-        }
+        if (!state.startTime) { state.startTime = Date.now(); saveState(); }
+        if(!state.isFinished) { timerInterval = setInterval(updateTimer, 1000); } 
+        else { showFinalResult(false); document.getElementById('timer').innerText = formatTime(state.endTime - state.startTime); }
+        document.getElementById('final-max').innerText = document.querySelectorAll('.question-box').length;
     });
 
-    // --- Timer Logic ---
-
     function updateTimer() {
-        const now = Date.now();
-        const diff = now - state.startTime;
+        const diff = Date.now() - state.startTime;
         document.getElementById('timer').innerText = formatTime(diff);
     }
-
     function formatTime(ms) {
         const totalSeconds = Math.floor(ms / 1000);
-        const m = Math.floor(totalSeconds / 60);
-        const s = totalSeconds % 60;
+        const m = Math.floor(totalSeconds / 60); const s = totalSeconds % 60;
         return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
     }
 
-    // --- Game Logic ---
-
+    // --- LOGIKA PYTAŃ ---
     function checkChoice(qId, btn, isCorrect) {
-        if (state.answeredIds[qId] !== undefined || state.isFinished) return; // Blokada
-
-        // Zapisz wynik
+        if (state.answeredIds[qId] !== undefined || state.isFinished) return;
         state.answeredIds[qId] = isCorrect;
         if(isCorrect) state.score++;
         
-        // UI Feedback
         const parent = btn.parentElement;
         const allBtns = parent.querySelectorAll('.choice-btn');
-        
-        // Zablokuj wszystkie
         allBtns.forEach(b => b.disabled = true);
+        parent.parentElement.classList.add('locked');
 
         if(isCorrect) {
             btn.classList.add('selected-correct');
             parent.nextElementSibling.innerHTML = '<span class="correct">&#10004; Świetnie!</span>';
         } else {
             btn.classList.add('selected-wrong');
-            parent.nextElementSibling.innerHTML = '<span class="wrong">&#10006; Błąd! Prawidłowa odpowiedź została podświetlona.</span>';
-            // Znajdź i pokaż poprawny
-            // Uwaga: w kodzie HTML onclick zawiera true/false, musimy to "zgadnąć" lub oznaczyć
-            // Tutaj prosta logika: szukamy tego, który ma w onclick "true"
-            allBtns.forEach(b => {
-                if(b.getAttribute('onclick').includes('true')) {
-                    b.classList.add('show-correct');
-                }
-            });
+            parent.nextElementSibling.innerHTML = '<span class="wrong">&#10006; Błąd!</span>';
+            allBtns.forEach(b => { if(b.getAttribute('onclick').includes('true')) b.classList.add('show-correct'); });
         }
-
         saveState();
     }
 
     function checkInput(qId, inputId, correctAnswers) {
         if (state.answeredIds[qId] !== undefined || state.isFinished) return;
-
         const input = document.getElementById(inputId);
-        const btn = input.nextElementSibling; // Button sprawdz
+        const btn = input.nextElementSibling;
         const feedback = document.getElementById('fb-' + inputId);
-
-        let rawVal = input.value.trim();
-        let userVal = rawVal.replace(/\s/g, '').toLowerCase();
-        let normalizedCorrect = correctAnswers.map(a => a.toString().replace(/\s/g, '').toLowerCase());
-
-        const isCorrect = normalizedCorrect.includes(userVal);
+        
+        let val = input.value.trim().replace(/\s/g, '').toLowerCase();
+        let correct = correctAnswers.map(a => a.toString().replace(/\s/g, '').toLowerCase());
+        const isCorrect = correct.includes(val);
 
         state.answeredIds[qId] = isCorrect;
         if(isCorrect) state.score++;
 
-        // Blokada UI
-        input.disabled = true;
-        btn.disabled = true;
+        input.disabled = true; btn.disabled = true;
+        input.closest('.question-box').classList.add('locked');
 
         if(isCorrect) {
-            input.style.borderColor = '#2e7d32';
-            input.style.backgroundColor = '#e8f5e9';
+            input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9';
             feedback.innerHTML = '<span class="correct">&#10004; Dobrze!</span>';
         } else {
-            input.style.borderColor = '#c62828';
-            input.style.backgroundColor = '#ffebee';
-            feedback.innerHTML = '<span class="wrong">&#10006; Źle. Poprawnie: ' + correctAnswers[0] + '</span>';
+            input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee';
+            feedback.innerHTML = '<span class="wrong">&#10006; Źle. Wynik: ' + correctAnswers[0] + '</span>';
         }
-
         saveState();
     }
 
-    // --- Stan i Zapis ---
-
-    function saveState() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
+    // --- ZAPIS STANU ---
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
     function loadState() {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            state = JSON.parse(saved);
-            restoreUI();
-        }
+        if (saved) { state = JSON.parse(saved); restoreUI(); }
     }
-
     function restoreUI() {
-        // Odtwórz widok na podstawie answeredIds
         for (const [qId, isCorrect] of Object.entries(state.answeredIds)) {
             const box = document.getElementById(qId);
             if(!box) continue;
-            
-            box.classList.add('locked'); // Styl wizualny
-
-            // Typ: Przyciski
-            const btns = box.querySelectorAll('.choice-btn');
-            if(btns.length > 0) {
-                btns.forEach(b => {
-                    b.disabled = true;
-                    // Próbujemy odtworzyć, co kliknął (to trudne bez zapisu indexu, ale zrobimy prościej:
-                    // Pokażemy tylko czy dobrze czy źle ogólnie w feedbacku)
-                });
-                const fb = box.querySelector('.feedback');
-                if(isCorrect) fb.innerHTML = '<span class="correct">&#10004; Rozwiązane poprawnie</span>';
-                else fb.innerHTML = '<span class="wrong">&#10006; Rozwiązane błędnie</span>';
-            }
-
-            // Typ: Input
+            box.classList.add('locked');
+            box.querySelectorAll('button').forEach(b => b.disabled = true);
             const input = box.querySelector('input');
             if(input) {
-                input.disabled = true;
-                const btn = box.querySelector('.check-btn');
-                if(btn) btn.disabled = true;
-                
-                // Przywracamy kolor
-                if(isCorrect) {
-                    input.style.backgroundColor = '#e8f5e9';
-                    input.style.borderColor = '#2e7d32';
-                    document.getElementById('fb-'+input.id).innerHTML = '<span class="correct">&#10004; Dobrze</span>';
-                } else {
-                    input.style.backgroundColor = '#ffebee';
-                    input.style.borderColor = '#c62828';
-                    document.getElementById('fb-'+input.id).innerHTML = '<span class="wrong">&#10006; Błąd</span>';
-                }
+                input.disabled = true; 
+                if(isCorrect) { input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9'; }
+                else { input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee'; }
             }
+            const fb = box.querySelector('.feedback');
+            if(fb) fb.innerHTML = isCorrect ? '<span class="correct">&#10004; OK</span>' : '<span class="wrong">&#10006; Błąd</span>';
         }
     }
+    function resetTest() { if(confirm('Zresetować?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
 
-    function resetTest() {
-        if(confirm('Czy na pewno chcesz zresetować cały test? Czas i wyniki zostaną skasowane.')) {
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload();
-        }
-    }
-
-    // --- Finał i Raport ---
-
+    // --- FINAŁ ---
     function finishTest() {
-        if(!confirm("Czy chcesz zakończyć test? Nie będziesz mógł już nic poprawić.")) return;
-        
-        clearInterval(timerInterval);
-        state.isFinished = true;
-        state.endTime = Date.now();
-        saveState();
-        showFinalResult(true);
+        if(!confirm("Zakończyć test?")) return;
+        clearInterval(timerInterval); state.isFinished = true; state.endTime = Date.now();
+        saveState(); showFinalResult(true);
     }
 
     function showFinalResult(scroll) {
-        const totalQuestions = document.querySelectorAll('.question-box').length;
-        
         document.getElementById('final-score').innerText = state.score;
-        document.getElementById('final-max').innerText = totalQuestions;
+        if(state.endTime) document.getElementById('final-time').innerText = formatTime(state.endTime - state.startTime);
         
-        let timeStr = "---";
-        if(state.endTime && state.startTime) {
-            timeStr = formatTime(state.endTime - state.startTime);
-        }
-        document.getElementById('final-time').innerText = timeStr;
-
-        // Generuj Tabelę
-        generateDiagnostics();
-
-        document.getElementById('final-result').style.display = 'block';
-        document.getElementById('finish-btn').style.display = 'none';
-        
-        if(scroll) document.getElementById('final-result').scrollIntoView({behavior: 'smooth'});
-    }
-
-    function generateDiagnostics() {
         let stats = {};
-        // Zliczanie
         document.querySelectorAll('.question-box').forEach(box => {
             let cat = box.getAttribute('data-category');
-            let qId = box.id;
-            
             if(!stats[cat]) stats[cat] = { total: 0, correct: 0 };
-            
             stats[cat].total++;
-            if(state.answeredIds[qId] === true) {
-                stats[cat].correct++;
-            }
+            if(state.answeredIds[box.id] === true) stats[cat].correct++;
         });
 
         const tbody = document.getElementById('diagnostic-body');
         const recList = document.getElementById('recommendation-list');
-        const recBox = document.getElementById('recommendation-box');
-        
-        tbody.innerHTML = '';
-        recList.innerHTML = '';
-        let issuesFound = false;
+        tbody.innerHTML = ''; recList.innerHTML = '';
+        let issues = false;
 
         for (const [cat, data] of Object.entries(stats)) {
             if(data.total === 0) continue;
-            let percent = Math.round((data.correct / data.total) * 100);
-            
-            let statusClass = 'diag-bad';
-            let statusText = 'Słabo (' + percent + '%)';
-            
-            if(percent === 100) { statusClass = 'diag-good'; statusText = 'Idealnie (100%)'; }
-            else if(percent >= 75) { statusClass = 'diag-good'; statusText = 'Dobrze (' + percent + '%)'; }
-            else if(percent >= 50) { statusClass = 'diag-ok'; statusText = 'Średnio (' + percent + '%)'; }
-            
-            tbody.innerHTML += `
-                <tr>
-                    <td>${catNames[cat]}</td>
-                    <td>${data.correct} / ${data.total}</td>
-                    <td class="${statusClass}">${statusText}</td>
-                </tr>
-            `;
-
-            // Rekomendacje
-            if(percent < 70) {
-                issuesFound = true;
-                let msg = "";
-                switch(cat) {
-                    case 'dlugosc_proste': msg = "Należy powtórzyć podstawowe jednostki długości (ile cm ma metr, ile m ma kilometr)."; break;
-                    case 'masa_proste': msg = "Należy powtórzyć podstawowe jednostki masy (dag, kg, tona)."; break;
-                    case 'zlozone_zera': msg = "Kluczowy problem: Uczeń gubi zera przy zamianie jednostek (np. pisze 15 zamiast 105). Konieczne dodatkowe ćwiczenia typu '3m 5cm'."; break;
-                    case 'porownywanie': msg = "Trudności z porównywaniem wielkości. Warto ćwiczyć sprowadzanie do tej samej jednostki przed porównaniem."; break;
-                }
-                recList.innerHTML += `<li>${msg}</li>`;
+            let p = Math.round((data.correct / data.total) * 100);
+            let cls = p >= 75 ? 'diag-good' : (p >= 50 ? 'diag-ok' : 'diag-bad');
+            tbody.innerHTML += `<tr><td>${catNames[cat] || cat}</td><td>${data.correct}/${data.total}</td><td class="${cls}">${p}%</td></tr>`;
+            if(p < 60) {
+                issues = true;
+                recList.innerHTML += `<li>Słabo: <b>${catNames[cat] || cat}</b></li>`;
             }
         }
-
-        if(issuesFound) recBox.style.display = 'block';
+        if(issues) document.getElementById('recommendation-box').style.display = 'block';
+        document.getElementById('final-result').style.display = 'block';
+        document.getElementById('finish-btn').style.display = 'none';
+        if(scroll) document.getElementById('final-result').scrollIntoView({behavior: 'smooth'});
     }
 
-</script>
+    // --- WYSYŁKA DO GOOGLE SHEETS ---
+    function sendToGoogleSheets() {
+        const btn = document.getElementById('send-results-btn');
+        const nameInput = document.getElementById('student-name');
+        const studentName = nameInput.value.trim();
 
+        if(studentName.length < 3) { alert("Wpisz imię i nazwisko!"); nameInput.focus(); return; }
+        if(GOOGLE_SCRIPT_URL.includes("WKLEJ")) { alert("Błąd konfiguracji: Nauczyciel nie podał linku do arkusza!"); return; }
+
+        btn.disabled = true; btn.innerText = "⏳ Wysyłanie...";
+
+        const dataToSend = {
+            uczen: studentName,
+            temat: document.getElementById('test-title').innerText + " - " + document.getElementById('test-subtitle').innerText,
+            wynik: state.score + " / " + document.getElementById('final-max').innerText,
+            czas: document.getElementById('final-time').innerText,
+            diagnoza: Array.from(document.querySelectorAll('#diagnostic-body tr')).map(r => r.cells[0].innerText + " (" + r.cells[2].innerText + ")").join(", ")
+        };
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST", mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dataToSend)
+        }).then(() => {
+            btn.innerText = "✅ Wynik wysłany!"; btn.style.backgroundColor = "#2e7d32";
+            alert("Pomyślnie wysłano wynik do nauczyciela!");
+        }).catch(err => {
+            console.error(err); btn.innerText = "❌ Błąd"; alert("Wystąpił błąd. Zrób zdjęcie ekranu.");
+        });
+    }
+</script>
 </body>
 </html>
