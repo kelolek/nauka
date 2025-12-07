@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3: Wielki Test Gramatyczny</title>
+    <style>
+        /* --- STYLE --- */
+        :root {
+            --primary: #0277bd; --primary-light: #e1f5fe; --accent: #ff6f00;
+            --success: #2e7d32; --error: #c62828; --bg-grid: #f5f5f5; --text-main: #263238;
+        }
+        body {
+            font-family: 'Segoe UI', 'Verdana', sans-serif;
+            background-color: var(--bg-grid);
+            background-image: linear-gradient(#cfd8dc 1px, transparent 1px), linear-gradient(90deg, #cfd8dc 1px, transparent 1px);
+            background-size: 20px 20px; color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center;
+        }
+        .container {
+            background-color: #ffffff; width: 100%; max-width: 900px; padding: 40px; border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 12px solid var(--primary); position: relative;
+        }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 5px; font-size: 32px; letter-spacing: 1px; }
+        h2 { color: var(--primary); border-bottom: 2px solid #b0bec5; padding-bottom: 10px; margin-top: 50px; display: flex; align-items: center; gap: 10px; }
+        .instruction { background-color: var(--primary-light); padding: 15px; border-radius: 8px; color: #01579b; font-weight: 600; margin-bottom: 25px; border-left: 5px solid var(--primary); }
+        
+        /* TIMER */
+        #timer-box {
+            position: fixed; top: 20px; right: 20px; background: #263238; color: #00e676;
+            font-family: 'Consolas', monospace; font-size: 24px; padding: 10px 20px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; border: 2px solid #fff;
+        }
+
+        /* PYTANIA */
+        .question-box { background-color: #fff; border: 2px solid #eceff1; border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: all 0.3s; }
+        .question-box:hover { border-color: #90caf9; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .question-box.locked { background-color: #fafafa; border-color: #e0e0e0; opacity: 0.9; pointer-events: none; }
+        .sentence { font-size: 20px; margin-bottom: 15px; font-weight: 600; }
+        .highlight { color: var(--primary); font-weight: bold; font-family: 'Consolas', monospace; font-size: 1.1em; }
+        .hint { color: #546e7a; font-size: 0.9em; font-style: italic; display: block; margin-bottom: 10px; }
+
+        /* BUTTONS */
+        .options { display: flex; gap: 10px; flex-wrap: wrap; }
+        button.choice-btn {
+            padding: 12px 20px; font-size: 18px; cursor: pointer; background-color: white;
+            border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; transition: 0.2s; flex: 1 1 auto; max-width: 250px; font-weight: bold;
+        }
+        button.choice-btn:hover:not(:disabled) { background-color: var(--primary-light); transform: translateY(-2px); }
+        button.choice-btn:disabled { cursor: not-allowed; border-color: #ccc; color: #999; background-color: #f5f5f5; transform: none !important; }
+        button.choice-btn.selected-wrong { background-color: #ffcdd2 !important; border-color: #c62828 !important; color: #c62828 !important; }
+        button.choice-btn.selected-correct { background-color: #c8e6c9 !important; border-color: #2e7d32 !important; color: #2e7d32 !important; }
+        button.choice-btn.show-correct { background-color: #fff !important; border-color: #2e7d32 !important; color: #2e7d32 !important; box-shadow: 0 0 10px #c8e6c9; }
+
+        /* INPUTS */
+        input[type="text"] { padding: 8px 12px; font-size: 20px; border: 2px solid #b0bec5; border-radius: 8px; width: 180px; text-align: center; color: #333; font-weight: bold; background-color: #fff; }
+        input[type="text"]:disabled { background-color: #eceff1; color: #546e7a; border-color: #cfd8dc; }
+        .check-btn { background-color: var(--primary); color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px; }
+        .check-btn:hover:not(:disabled) { background-color: #01579b; }
+        .check-btn:disabled { background-color: #b0bec5; cursor: default; }
+
+        /* WYNIKI */
+        .feedback { margin-top: 12px; font-weight: bold; font-size: 16px; min-height: 24px; }
+        .correct { color: var(--success); } .wrong { color: var(--error); }
+        .result-section { display: none; margin-top: 40px; padding: 30px; background-color: #fff; border: 4px solid var(--primary); border-radius: 15px; text-align: center; }
+        .diagnostic-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .diagnostic-table th, .diagnostic-table td { border: 1px solid #cfd8dc; padding: 12px; text-align: left; }
+        .diagnostic-table th { background-color: var(--primary); color: white; }
+        .diag-bad { color: var(--error); font-weight: bold; } .diag-ok { color: #f57c00; font-weight: bold; } .diag-good { color: var(--success); font-weight: bold; }
+
+        @media print {
+            #timer-box, #reset-btn, #finish-btn, #send-results-btn { display: none !important; }
+            .result-section { display: block !important; border: 2px solid black; }
+            body { background: white; } .container { box-shadow: none; border: none; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="timer-box">&#9201; <span id="timer">00:00</span></div>
+<button id="reset-btn" onclick="resetTest()" style="position:fixed; top:70px; right:20px; background:#ef5350; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; z-index:999;">Resetuj</button>
+
+<div class="container">
+    <h1 id="test-title">UNIT 3: WIELKI TEST</h1>
+    <p id="test-subtitle" style="text-align: center; color: #546e7a;">Przedimki • Liczba mnoga • Have got</p>
+    
+    <div style="text-align: center; background: #fff3e0; padding: 10px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #ffe0b2; color: #e65100;">
+        <strong>&#9888; ZASADY:</strong> Brak możliwości poprawiania błędów! Czas jest mierzony.
+    </div>
+
+    <div id="questions-container">
+        
+        <h2>1. Przedimki: a / an / - </h2>
+        <p class="instruction">Wybierz <b>a</b>, <b>an</b> lub <b>-</b> (kreska), jeśli nie wstawiamy nic.</p>
+        [attachment_0](attachment)
+
+        <div class="question-box" id="q1" data-category="art">
+            <span class="hint">(To jest pomarańczowa gumka)</span>
+            <div class="sentence">It is ... <span class="highlight">orange rubber</span>.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q1', this, false)">a</button>
+                <button class="choice-btn" onclick="checkChoice('q1', this, true)">an</button>
+                <button class="choice-btn" onclick="checkChoice('q1', this, false)">-</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q2" data-category="art">
+            <span class="hint">(To jest niebieska temperówka)</span>
+            <div class="sentence">It is ... <span class="highlight">blue sharpener</span>.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q2', this, true)">a</button>
+                <button class="choice-btn" onclick="checkChoice('q2', this, false)">an</button>
+                <button class="choice-btn" onclick="checkChoice('q2', this, false)">-</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q3" data-category="art">
+            <span class="hint">(To są nowe plecaki - Liczba mnoga!)</span>
+            <div class="sentence">They are ... <span class="highlight">new backpacks</span>.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q3', this, false)">a</button>
+                <button class="choice-btn" onclick="checkChoice('q3', this, false)">an</button>
+                <button class="choice-btn" onclick="checkChoice('q3', this, true)">-</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q4" data-category="art">
+            <span class="hint">Wpisz: a / an / - (Lekcja angielskiego)</span>
+            <div class="sentence">It is <input type="text" id="inp_q4"> <span class="highlight">English lesson</span>.</div>
+            <button class="check-btn" onclick="checkInput('q4', 'inp_q4', ['an'])">Sprawdź</button>
+            <div class="feedback" id="fb-inp_q4"></div>
+        </div>
+
+        <div class="question-box" id="q5" data-category="art">
+            <span class="hint">Wpisz: a / an / - (Ołówki)</span>
+            <div class="sentence">They are <input type="text" id="inp_q5"> <span class="highlight">pencils</span>.</div>
+            <button class="check-btn" onclick="checkInput('q5', 'inp_q5', ['-'])">Sprawdź</button>
+            <div class="feedback" id="fb-inp_q5"></div>
+        </div>
+
+        <h2>2. Liczba mnoga (Plurals)</h2>
+        <p class="instruction">Pamiętaj o wyjątkach (regularne i nieregularne).</p>
+        
+
+        <div class="question-box" id="q6" data-category="plu">
+            <span class="hint">Jeden mężczyzna -> Dwóch mężczyzn</span>
+            <div class="sentence">One man -> Two ...</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q6', this, true)">men</button>
+                <button class="choice-btn" onclick="checkChoice('q6', this, false)">mans</button>
+                <button class="choice-btn" onclick="checkChoice('q6', this, false)">manes</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q7" data-category="plu">
+            <span class="hint">Jedna osoba -> Dużo ludzi</span>
+            <div class="sentence">One person -> Many ...</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q7', this, true)">people</button>
+                <button class="choice-btn" onclick="checkChoice('q7', this, false)">persons</button>
+                <button class="choice-btn" onclick="checkChoice('q7', this, false)">peoples</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q8" data-category="plu">
+            <span class="hint">Ząb -> Zęby (Nieregularne!)</span>
+            <div class="sentence">One tooth -> Two <input type="text" id="inp_q8"></div>
+            <button class="check-btn" onclick="checkInput('q8', 'inp_q8', ['teeth'])">Sprawdź</button>
+            <div class="feedback" id="fb-inp_q8"></div>
+        </div>
+
+        <div class="question-box" id="q9" data-category="plu">
+            <span class="hint">Mysz -> Myszy (Nieregularne!)</span>
+            <div class="sentence">One mouse -> Three <input type="text" id="inp_q9"></div>
+            <button class="check-btn" onclick="checkInput('q9', 'inp_q9', ['mice'])">Sprawdź</button>
+            <div class="feedback" id="fb-inp_q9"></div>
+        </div>
+
+        <div class="question-box" id="q10" data-category="plu">
+            <span class="hint">Półka -> Półki (-f zmienia się na -ves!)</span>
+            <div class="sentence">One shelf -> Two <input type="text" id="inp_q10"></div>
+            <button class="check-btn" onclick="checkInput('q10', 'inp_q10', ['shelves'])">Sprawdź</button>
+            <div class="feedback" id="fb-inp_q10"></div>
+        </div>
+
+        <h2>3. Czasownik: Have got</h2>
+        <p class="instruction">Zdecyduj czy zdanie jest twierdzące (MAMY) czy przeczące (NIE MAMY).</p>
+        [attachment_1](attachment)
+
+        <div class="question-box" id="q11" data-category="hvg">
+            <span class="hint">(My MAMY Matematykę w poniedziałek)</span>
+            <div class="sentence">We ... <span class="highlight">Maths</span> on Monday.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q11', this, false)">haven't got</button>
+                <button class="choice-btn" onclick="checkChoice('q11', this, true)">'ve got</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q12" data-category="hvg">
+            <span class="hint">(Oni NIE MAJĄ WF-u w piątek)</span>
+            <div class="sentence">They ... <span class="highlight">PE</span> on Friday.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q12', this, false)">haven't</button>
+                <button class="choice-btn" onclick="checkChoice('q12', this, true)">haven't got</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-box" id="q13" data-category="hvg">
+            <span class="hint">Wpisz: <b>'ve got</b> lub <b>haven't got</b> (Ja NIE MAM temperówki)</span>
+            <div class="sentence">I <input type="text" id="inp_q13"> a sharpener.</div>
+            <button class="check-btn" onclick="checkInput('q13', 'inp_q13', ['haven\'t got', 'have not got'])">Sprawdź</button>
+            <div class="feedback" id="fb-inp_q13"></div>
+        </div>
+
+        <div class="question-box" id="q14" data-category="hvg">
+            <span class="hint">Wpisz: <b>'ve got</b> lub <b>haven't got</b> (My MAMY Przyrodę dzisiaj)</span>
+            <div class="sentence">We <input type="text" id="inp_q14"> Science today.</div>
+            <button class="check-btn" onclick="checkInput('q14', 'inp_q14', ['\'ve got', 'have got'])">Sprawdź</button>
+            <div class="feedback" id="fb-inp_q14"></div>
+        </div>
+
+        <div class="question-box" id="q15" data-category="hvg">
+            <span class="hint">Wpisz: <b>'ve got</b> lub <b>haven't got</b> (Ty NIE MASZ czerwonego długopisu)</span>
+            <div class="sentence">You <input type="text" id="inp_q15"> a red pen.</div>
+            <button class="check-btn" onclick="checkInput('q15', 'inp_q15', ['haven\'t got', 'have not got'])">Sprawdź</button>
+            <div class="feedback" id="fb-inp_q15"></div>
+        </div>
+
+    </div>
+
+    <div style="text-align: center; margin-top: 60px; margin-bottom: 40px;">
+        <button id="finish-btn" onclick="finishTest()" style="padding: 18px 50px; background-color: var(--accent); color: white; font-size: 22px; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: bold; transition: transform 0.2s;">&#127937; ZAKOŃCZ TEST</button>
+    </div>
+
+    <div id="final-result" class="result-section">
+        <h2 style="font-size: 28px; border: none; justify-content: center; margin-top: 0;">&#127942; WYNIKI &#127942;</h2>
+        
+        <div style="font-size: 18px; margin-bottom: 20px;">
+            Imię i nazwisko: <input type="text" id="student-name" placeholder="Wpisz imię..." style="width: 250px; padding: 8px; font-weight: bold; background: white; border: 2px solid var(--primary); border-radius: 5px;">
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0;">
+            <div>
+                <div style="font-size: 14px; color: #777;">PUNKTY</div>
+                <div style="font-size: 36px; font-weight: bold; color: var(--primary);"><span id="final-score">0</span> / <span id="final-max">0</span></div>
+            </div>
+            <div>
+                <div style="font-size: 14px; color: #777;">CZAS PRACY</div>
+                <div style="font-size: 36px; font-weight: bold; color: var(--accent);"><span id="final-time">00:00</span></div>
+            </div>
+        </div>
+
+        <h3 style="text-align: left; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">&#128202; Analiza Tematów:</h3>
+        <table class="diagnostic-table">
+            <thead><tr><th>Dział / Temat</th><th>Wynik</th><th>Ocena</th></tr></thead>
+            <tbody id="diagnostic-body"></tbody>
+        </table>
+
+        <div id="recommendation-box" style="background-color: #fff3e0; padding: 15px; border-radius: 8px; border-left: 5px solid var(--accent); text-align: left; display: none; margin-top: 20px;">
+            <strong>&#128161; Do powtórzenia:</strong>
+            <ul id="recommendation-list" style="margin-top: 5px; padding-left: 20px;"></ul>
+        </div>
+
+        <button id="send-results-btn" onclick="sendToGoogleSheets()" style="background-color: #0277bd; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; border: none; margin-top: 20px; width: 100%; max-width: 300px;">📤 Wyślij wynik do Nauczyciela</button>
+        <br>
+        <button onclick="window.print()" style="background-color: #546e7a; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; border: none; margin-top: 15px;">🖨️ Drukuj / Zapisz PDF</button>
+    </div>
+</div>
+
+<script>
+    // --- KONFIGURACJA ---
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_ByEj8poSy36m8iehCHYmislHj0sTvHLRhQPUkgic_L5Ss8fXrF_a2THkm-hpuZL0OA/exec"; 
+
+    // Konfiguracja zmiennych pod Unit 3
+    const STORAGE_KEY = 'unit3_grammar_master_v2'; 
+    const catNames = { 
+        'art': 'Przedimki (a/an/-)',
+        'plu': 'Liczba Mnoga',
+        'hvg': 'Have got / Has got'
+    };
+    // ---------------------
+
+    let state = { score: 0, answeredIds: {}, startTime: null, endTime: null, isFinished: false };
+    let timerInterval;
+
+    window.addEventListener('load', () => {
+        loadState();
+        if (!state.startTime) { state.startTime = Date.now(); saveState(); }
+        if(!state.isFinished) { timerInterval = setInterval(updateTimer, 1000); } 
+        else { showFinalResult(false); document.getElementById('timer').innerText = formatTime(state.endTime - state.startTime); }
+        document.getElementById('final-max').innerText = document.querySelectorAll('.question-box').length;
+    });
+
+    function updateTimer() {
+        const diff = Date.now() - state.startTime;
+        document.getElementById('timer').innerText = formatTime(diff);
+    }
+    function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const m = Math.floor(totalSeconds / 60); const s = totalSeconds % 60;
+        return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
+    }
+
+    // --- LOGIKA PYTAŃ ---
+    function checkChoice(qId, btn, isCorrect) {
+        if (state.answeredIds[qId] !== undefined || state.isFinished) return;
+        state.answeredIds[qId] = isCorrect;
+        if(isCorrect) state.score++;
+        
+        const parent = btn.parentElement;
+        const allBtns = parent.querySelectorAll('.choice-btn');
+        allBtns.forEach(b => b.disabled = true);
+        parent.parentElement.classList.add('locked');
+
+        if(isCorrect) {
+            btn.classList.add('selected-correct');
+            parent.nextElementSibling.innerHTML = '<span class="correct">&#10004; Świetnie!</span>';
+        } else {
+            btn.classList.add('selected-wrong');
+            parent.nextElementSibling.innerHTML = '<span class="wrong">&#10006; Błąd!</span>';
+            allBtns.forEach(b => { if(b.getAttribute('onclick').includes('true')) b.classList.add('show-correct'); });
+        }
+        saveState();
+    }
+
+    function checkInput(qId, inputId, correctAnswers) {
+        if (state.answeredIds[qId] !== undefined || state.isFinished) return;
+        const input = document.getElementById(inputId);
+        const btn = input.nextElementSibling;
+        const feedback = document.getElementById('fb-' + inputId);
+        
+        let val = input.value.trim().replace(/\s/g, '').toLowerCase();
+        // Normalizacja apostrofów
+        val = val.replace(/’/g, "'").replace(/`/g, "'");
+        
+        let correct = correctAnswers.map(a => a.toString().replace(/\s/g, '').toLowerCase());
+        const isCorrect = correct.includes(val);
+
+        state.answeredIds[qId] = isCorrect;
+        if(isCorrect) state.score++;
+
+        input.disabled = true; btn.disabled = true;
+        input.closest('.question-box').classList.add('locked');
+
+        if(isCorrect) {
+            input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9';
+            feedback.innerHTML = '<span class="correct">&#10004; Dobrze!</span>';
+        } else {
+            input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee';
+            feedback.innerHTML = '<span class="wrong">&#10006; Źle. Poprawnie: ' + correctAnswers[0] + '</span>';
+        }
+        saveState();
+    }
+
+    // --- ZAPIS STANU ---
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    function loadState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) { state = JSON.parse(saved); restoreUI(); }
+    }
+    function restoreUI() {
+        for (const [qId, isCorrect] of Object.entries(state.answeredIds)) {
+            const box = document.getElementById(qId);
+            if(!box) continue;
+            box.classList.add('locked');
+            box.querySelectorAll('button').forEach(b => b.disabled = true);
+            const input = box.querySelector('input');
+            if(input) {
+                input.disabled = true; 
+                if(isCorrect) { input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9'; }
+                else { input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee'; }
+            }
+            const fb = box.querySelector('.feedback');
+            if(fb) fb.innerHTML = isCorrect ? '<span class="correct">&#10004; OK</span>' : '<span class="wrong">&#10006; Błąd</span>';
+        }
+    }
+    function resetTest() { if(confirm('Zresetować?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+
+    // --- FINAŁ ---
+    function finishTest() {
+        if(!confirm("Zakończyć test?")) return;
+        clearInterval(timerInterval); state.isFinished = true; state.endTime = Date.now();
+        saveState(); showFinalResult(true);
+    }
+
+    function showFinalResult(scroll) {
+        document.getElementById('final-score').innerText = state.score;
+        if(state.endTime) document.getElementById('final-time').innerText = formatTime(state.endTime - state.startTime);
+        
+        let stats = {};
+        document.querySelectorAll('.question-box').forEach(box => {
+            let cat = box.getAttribute('data-category');
+            if(!stats[cat]) stats[cat] = { total: 0, correct: 0 };
+            stats[cat].total++;
+            if(state.answeredIds[box.id] === true) stats[cat].correct++;
+        });
+
+        const tbody = document.getElementById('diagnostic-body');
+        const recList = document.getElementById('recommendation-list');
+        tbody.innerHTML = ''; recList.innerHTML = '';
+        let issues = false;
+
+        for (const [cat, data] of Object.entries(stats)) {
+            if(data.total === 0) continue;
+            let p = Math.round((data.correct / data.total) * 100);
+            let cls = p >= 75 ? 'diag-good' : (p >= 50 ? 'diag-ok' : 'diag-bad');
+            tbody.innerHTML += `<tr><td>${catNames[cat] || cat}</td><td>${data.correct}/${data.total}</td><td class="${cls}">${p}%</td></tr>`;
+            if(p < 60) {
+                issues = true;
+                recList.innerHTML += `<li>Słabo: <b>${catNames[cat] || cat}</b></li>`;
+            }
+        }
+        if(issues) document.getElementById('recommendation-box').style.display = 'block';
+        document.getElementById('final-result').style.display = 'block';
+        document.getElementById('finish-btn').style.display = 'none';
+        if(scroll) document.getElementById('final-result').scrollIntoView({behavior: 'smooth'});
+    }
+
+    // --- WYSYŁKA DO GOOGLE SHEETS ---
+    function sendToGoogleSheets() {
+        const btn = document.getElementById('send-results-btn');
+        const nameInput = document.getElementById('student-name');
+        const studentName = nameInput.value.trim();
+
+        if(studentName.length < 3) { alert("Wpisz imię i nazwisko!"); nameInput.focus(); return; }
+        
+        btn.disabled = true; btn.innerText = "⏳ Wysyłanie...";
+
+        const dataToSend = {
+            uczen: studentName,
+            temat: document.getElementById('test-title').innerText + " - " + document.getElementById('test-subtitle').innerText,
+            wynik: state.score + " / " + document.getElementById('final-max').innerText,
+            czas: document.getElementById('final-time').innerText,
+            diagnoza: Array.from(document.querySelectorAll('#diagnostic-body tr')).map(r => r.cells[0].innerText + " (" + r.cells[2].innerText + ")").join(", ")
+        };
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST", mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dataToSend)
+        }).then(() => {
+            btn.innerText = "✅ Wynik wysłany!"; btn.style.backgroundColor = "#2e7d32";
+            alert("Pomyślnie wysłano wynik do nauczyciela!");
+        }).catch(err => {
+            console.error(err); btn.innerText = "❌ Błąd"; alert("Wystąpił błąd. Zrób zdjęcie ekranu.");
+        });
+    }
+</script>
+</body>
+</html>
