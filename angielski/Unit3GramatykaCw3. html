@@ -277,6 +277,7 @@
     // --- KONFIGURACJA ---
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_ByEj8poSy36m8iehCHYmislHj0sTvHLRhQPUkgic_L5Ss8fXrF_a2THkm-hpuZL0OA/exec"; 
 
+
     // Konfiguracja zmiennych pod Unit 3
     const STORAGE_KEY = 'unit3_grammar_master_v2'; 
     const catNames = { 
