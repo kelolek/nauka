@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3: Wielki Test Gramatyczny 🏫</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+            background-color: #e8f5e9;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 850px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-top: 15px solid #2e7d32;
+        }
+        h1 { color: #1b5e20; text-align: center; margin-bottom: 5px; font-size: 28px; }
+        h2 { 
+            color: #2e7d32; 
+            border-bottom: 3px solid #a5d6a7; 
+            padding-bottom: 10px; 
+            margin-top: 50px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        
+        .instruction {
+            background-color: #f1f8e9;
+            padding: 15px;
+            border-radius: 8px;
+            color: #1b5e20;
+            font-weight: 600;
+            margin-bottom: 25px;
+            border-left: 5px solid #66bb6a;
+        }
+
+        /* Pytania */
+        .question-box {
+            background-color: #fff;
+            border: 2px solid #c8e6c9;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+            transition: all 0.2s;
+        }
+        .question-box:hover {
+            border-color: #4caf50;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        
+        .sentence { font-size: 19px; color: #212121; margin-bottom: 10px; font-weight: 600; }
+        .hint-pl { color: #558b2f; font-size: 15px; font-style: italic; display: block; margin-bottom: 8px; }
+        .vocab-highlight { color: #2e7d32; font-weight: bold; }
+
+        /* Przyciski wyboru */
+        .options { display: flex; gap: 10px; flex-wrap: wrap; }
+        button.choice-btn {
+            padding: 10px 16px; font-size: 16px; cursor: pointer; background-color: white;
+            border: 2px solid #66bb6a; color: #2e7d32; border-radius: 10px; transition: 0.2s;
+            flex: 1 1 auto; max-width: 150px; font-weight: bold;
+        }
+        button.choice-btn:hover { background-color: #e8f5e9; transform: translateY(-2px); }
+
+        /* Pola tekstowe */
+        input[type="text"] {
+            padding: 8px 12px; font-size: 18px; border: 2px solid #bdbdbd; border-radius: 8px;
+            width: 160px; text-align: center; color: #333; font-weight: bold; background-color: #fafafa;
+        }
+        input[type="text"]:focus { outline: none; border-color: #2e7d32; background-color: #fff; }
+        
+        .check-spelling-btn {
+            background-color: #2e7d32; color: white; border: none; padding: 8px 20px;
+            font-size: 15px; border-radius: 8px; cursor: pointer; margin-left: 10px;
+        }
+        .check-spelling-btn:hover { background-color: #1b5e20; }
+
+        /* Feedback i Style walidacji */
+        .feedback { margin-top: 10px; font-weight: bold; min-height: 24px; font-size: 15px; }
+        .correct { color: #2e7d32; }
+        .wrong { color: #c62828; }
+        
+        .btn-correct { background-color: #66bb6a !important; color: white !important; border-color: #66bb6a !important; }
+        .btn-wrong { background-color: #ef5350 !important; color: white !important; border-color: #ef5350 !important; }
+
+        /* Scoreboard */
+        #score-board {
+            position: fixed; top: 20px; right: 20px; background: #fff; padding: 15px 25px;
+            border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-weight: bold; color: #1b5e20; border: 3px solid #2e7d32; display: none;
+            z-index: 100; font-size: 20px;
+        }
+        @media (min-width: 1200px) { #score-board { display: block; } }
+
+        /* Sekcja Wyniku */
+        .result-section {
+            display: none; margin-top: 40px; padding: 30px; background-color: #e8f5e9;
+            border: 4px solid #2e7d32; border-radius: 15px; text-align: center;
+        }
+
+        /* Print styling */
+        @media print {
+            body { background: white; }
+            .container { border: none; box-shadow: none; width: 100%; max-width: 100%; }
+            #score-board, button, #finish-btn { display: none !important; }
+            .result-section { display: block !important; border: 1px solid black; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="score-board">Twój Wynik: <span id="score">0</span> / <span id="max-score">0</span></div>
+
+<div class="container">
+    <h1>🏫 Unit 3: Wielki Test 🏫</h1>
+    <p style="text-align: center; color: #555;">a/an/- • Liczba mnoga • Have got</p>
+
+    <h2>1. Przedimki: a / an / - </h2>
+    <p class="instruction">Wybierz <b>a</b>, <b>an</b> lub <b>-</b> (kreska), jeśli nie wstawiamy nic (np. w liczbie mnogiej).</p>
+
+    <div class="question-box"><span class="hint-pl">(To jest pomarańczowa gumka)</span>
+        <div class="sentence">It is ... <span class="vocab-highlight">orange rubber</span>.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, false)">a</button><button class="choice-btn" onclick="checkChoice(this, true)">an</button><button class="choice-btn" onclick="checkChoice(this, false)">-</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(To jest niebieska temperówka)</span>
+        <div class="sentence">It is ... <span class="vocab-highlight">blue sharpener</span>.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, true)">a</button><button class="choice-btn" onclick="checkChoice(this, false)">an</button><button class="choice-btn" onclick="checkChoice(this, false)">-</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(To są nowe plecaki - Liczba mnoga!)</span>
+        <div class="sentence">They are ... <span class="vocab-highlight">new backpacks</span>.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, false)">a</button><button class="choice-btn" onclick="checkChoice(this, false)">an</button><button class="choice-btn" onclick="checkChoice(this, true)">-</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(To jest stara linijka)</span>
+        <div class="sentence">It is ... <span class="vocab-highlight">old ruler</span>.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, false)">a</button><button class="choice-btn" onclick="checkChoice(this, true)">an</button><button class="choice-btn" onclick="checkChoice(this, false)">-</button></div><div class="feedback"></div>
+    </div>
+    
+    <div class="question-box"><span class="hint-pl">Wpisz: <b>a</b>, <b>an</b> lub <b>-</b> (Lekcja angielskiego)</span>
+        <div class="sentence">It is <input type="text" id="art1" style="width: 50px;"> <span class="vocab-highlight">English lesson</span>.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('art1', 'an')">Sprawdź</button><div class="feedback" id="fb-art1"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">Wpisz: <b>a</b>, <b>an</b> lub <b>-</b> (Ołówki)</span>
+        <div class="sentence">They are <input type="text" id="art2" style="width: 50px;"> <span class="vocab-highlight">pencils</span>.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('art2', '-')">Sprawdź</button><div class="feedback" id="fb-art2"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">Wpisz: <b>a</b>, <b>an</b> lub <b>-</b> (Duża tablica)</span>
+        <div class="sentence">It is <input type="text" id="art3" style="width: 50px;"> <span class="vocab-highlight">big blackboard</span>.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('art3', 'a')">Sprawdź</button><div class="feedback" id="fb-art3"></div>
+    </div>
+    
+    <div class="question-box"><span class="hint-pl">Wpisz: <b>a</b>, <b>an</b> lub <b>-</b> (Pomarańczowe książki)</span>
+        <div class="sentence">They are <input type="text" id="art4" style="width: 50px;"> <span class="vocab-highlight">orange books</span>.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('art4', '-')">Sprawdź</button><div class="feedback" id="fb-art4"></div>
+    </div>
+
+
+    <h2>2. Liczba mnoga (Plurals)</h2>
+    <p class="instruction">Wybierz lub wpisz poprawną formę liczby mnogiej.</p>
+
+    <div class="question-box"><span class="hint-pl">Jeden mężczyzna -> Dwóch mężczyzn</span>
+        <div class="sentence">One man -> Two ...</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, true)">men</button><button class="choice-btn" onclick="checkChoice(this, false)">mans</button><button class="choice-btn" onclick="checkChoice(this, false)">manes</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">Jedna kobieta -> Trzy kobiety</span>
+        <div class="sentence">One woman -> Three ...</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, false)">womans</button><button class="choice-btn" onclick="checkChoice(this, true)">women</button><button class="choice-btn" onclick="checkChoice(this, false)">womanes</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">Jedno dziecko -> Pięcioro dzieci</span>
+        <div class="sentence">One child -> Five ...</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, false)">childs</button><button class="choice-btn" onclick="checkChoice(this, false)">childes</button><button class="choice-btn" onclick="checkChoice(this, true)">children</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">Jedna osoba -> Dużo ludzi</span>
+        <div class="sentence">One person -> Many ...</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, true)">people</button><button class="choice-btn" onclick="checkChoice(this, false)">persons</button><button class="choice-btn" onclick="checkChoice(this, false)">peoples</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">Ząb -> Zęby (Nieregularne!)</span>
+        <div class="sentence">One tooth -> Two <input type="text" id="pl1"></div>
+        <button class="check-spelling-btn" onclick="checkSpelling('pl1', 'teeth')">Sprawdź</button><div class="feedback" id="fb-pl1"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">Mysz -> Myszy (Nieregularne!)</span>
+        <div class="sentence">One mouse -> Three <input type="text" id="pl2"></div>
+        <button class="check-spelling-btn" onclick="checkSpelling('pl2', 'mice')">Sprawdź</button><div class="feedback" id="fb-pl2"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">Półka -> Półki (końcówka -f zmienia się na -ves!)</span>
+        <div class="sentence">One shelf -> Two <input type="text" id="pl3"></div>
+        <button class="check-spelling-btn" onclick="checkSpelling('pl3', 'shelves')">Sprawdź</button><div class="feedback" id="fb-pl3"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">Stopa -> Stopy</span>
+        <div class="sentence">One foot -> Two <input type="text" id="pl4"></div>
+        <button class="check-spelling-btn" onclick="checkSpelling('pl4', 'feet')">Sprawdź</button><div class="feedback" id="fb-pl4"></div>
+    </div>
+
+
+    <h2>3. Czasownik: Have got (16 zadań)</h2>
+    <p class="instruction">A. Wybierz poprawną odpowiedź (8 zadań).</p>
+
+    <div class="question-box"><span class="hint-pl">(My MAMY Matematykę w poniedziałek)</span>
+        <div class="sentence">We ... <span class="vocab-highlight">Maths</span> on Monday.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, false)">haven't got</button><button class="choice-btn" onclick="checkChoice(this, true)">'ve got</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(Ja NIE MAM w poniedziałek Historii)</span>
+        <div class="sentence">I ... <span class="vocab-highlight">History</span> on Monday.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, true)">haven't got</button><button class="choice-btn" onclick="checkChoice(this, false)">not got</button><button class="choice-btn" onclick="checkChoice(this, false)">'ve got</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(Ty MASZ nowy klej)</span>
+        <div class="sentence">You ... a new <span class="vocab-highlight">glue stick</span>.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, true)">'ve got</button><button class="choice-btn" onclick="checkChoice(this, false)">'s got</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(Oni NIE MAJĄ WF-u w piątek)</span>
+        <div class="sentence">They ... <span class="vocab-highlight">PE</span> on Friday.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, false)">haven't</button><button class="choice-btn" onclick="checkChoice(this, true)">haven't got</button></div><div class="feedback"></div>
+    </div>
+    
+    <div class="question-box"><span class="hint-pl">(My MAMY sprawdzian dzisiaj)</span>
+        <div class="sentence">We ... a <span class="vocab-highlight">test</span> today.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, true)">'ve got</button><button class="choice-btn" onclick="checkChoice(this, false)">got</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(Ja NIE MAM nożyczek)</span>
+        <div class="sentence">I ... <span class="vocab-highlight">scissors</span>.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, false)">haven't</button><button class="choice-btn" onclick="checkChoice(this, true)">haven't got</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(Ty NIE MASZ stroju na WF)</span>
+        <div class="sentence">You ... a <span class="vocab-highlight">PE kit</span>.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, true)">haven't got</button><button class="choice-btn" onclick="checkChoice(this, false)">not got</button></div><div class="feedback"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(Oni MAJĄ angielskich przyjaciół)</span>
+        <div class="sentence">They ... English friends.</div>
+        <div class="options"><button class="choice-btn" onclick="checkChoice(this, true)">'ve got</button><button class="choice-btn" onclick="checkChoice(this, false)">have</button></div><div class="feedback"></div>
+    </div>
+
+
+    <p class="instruction" style="margin-top: 30px;">B. Wpisz: <b>'ve got</b> lub <b>haven't got</b> (8 zadań).</p>
+
+    <div class="question-box"><span class="hint-pl">(Ja NIE MAM temperówki)</span>
+        <div class="sentence">I <input type="text" id="hv1" style="width: 120px;"> a sharpener.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('hv1', 'haven\'t got')">Sprawdź</button><div class="feedback" id="fb-hv1"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(My MAMY Przyrodę dzisiaj)</span>
+        <div class="sentence">We <input type="text" id="hv2" style="width: 120px;"> Science today.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('hv2', '\'ve got', 'have got')">Sprawdź</button><div class="feedback" id="fb-hv2"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(Oni NIE MAJĄ szkoły w niedzielę)</span>
+        <div class="sentence">They <input type="text" id="hv3" style="width: 120px;"> school on Sunday.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('hv3', 'haven\'t got')">Sprawdź</button><div class="feedback" id="fb-hv3"></div>
+    </div>
+    
+    <div class="question-box"><span class="hint-pl">(Ty MASZ ładny plecak)</span>
+        <div class="sentence">You <input type="text" id="hv4" style="width: 120px;"> a nice backpack.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('hv4', '\'ve got', 'have got')">Sprawdź</button><div class="feedback" id="fb-hv4"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(Ja MAM kanapkę na lunch)</span>
+        <div class="sentence">I <input type="text" id="hv5" style="width: 120px;"> a sandwich for lunch.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('hv5', '\'ve got', 'have got')">Sprawdź</button><div class="feedback" id="fb-hv5"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(My NIE MAMY nowych książek)</span>
+        <div class="sentence">We <input type="text" id="hv6" style="width: 120px;"> new books.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('hv6', 'haven\'t got')">Sprawdź</button><div class="feedback" id="fb-hv6"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(Oni MAJĄ dużą klasę)</span>
+        <div class="sentence">They <input type="text" id="hv7" style="width: 120px;"> a big classroom.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('hv7', '\'ve got', 'have got')">Sprawdź</button><div class="feedback" id="fb-hv7"></div>
+    </div>
+
+    <div class="question-box"><span class="hint-pl">(Ty NIE MASZ czerwonego długopisu)</span>
+        <div class="sentence">You <input type="text" id="hv8" style="width: 120px;"> a red pen.</div>
+        <button class="check-spelling-btn" onclick="checkSpelling('hv8', 'haven\'t got')">Sprawdź</button><div class="feedback" id="fb-hv8"></div>
+    </div>
+
+
+    <div style="text-align: center; margin-top: 50px; margin-bottom: 20px;">
+        <button id="finish-btn" onclick="showFinalResult()" style="padding: 15px 40px; background-color: #1b5e20; color: white; font-size: 20px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-weight: bold;">🏁 ZAKOŃCZ TEST</button>
+    </div>
+
+    <div id="final-result" class="result-section">
+        <h2 style="font-size: 24px; color: #1b5e20; border: none; margin-top: 0;">🎉 BRAWO! 🎉</h2>
+        <p style="font-size: 18px;">Uczeń: <input type="text" placeholder="Imię i nazwisko" style="width: 250px; padding: 8px; font-weight: bold; background: white;"></p>
+        <h3 style="font-size: 32px; margin: 20px 0; border: none;">Wynik: <span id="final-score" style="color: #2e7d32;">0</span> / <span id="final-max">0</span></h3>
+        <p>Data: <span id="current-date"></span></p>
+        <br>
+        <button onclick="window.print()" style="background-color: #333; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; border: none;">🖨️ Zapisz wynik jako PDF</button>
+    </div>
+
+</div>
+
+<script>
+    const STORAGE_KEY = 'unit3_school_test_v9_extended'; 
+    let score = 0;
+    let answeredQuestions = new Set(); 
+    let totalQuestions = 0;
+    let isResetting = false;
+
+    window.addEventListener('load', () => {
+        totalQuestions = document.querySelectorAll('.question-box').length;
+        document.getElementById('max-score').innerText = totalQuestions;
+        document.getElementById('final-max').innerText = totalQuestions;
+        
+        loadState();
+        addResetButton();
+    });
+
+    // 1. Zapisywanie
+    function saveState() {
+        if (isResetting) return;
+
+        const state = {
+            score: score,
+            answeredIds: Array.from(answeredQuestions),
+            inputs: {},
+            buttons: []
+        };
+
+        // Zapisz inputy
+        document.querySelectorAll('input[type="text"]').forEach(input => {
+            if(input.id) state.inputs[input.id] = input.value;
+        });
+
+        // Zapisz przyciski
+        document.querySelectorAll('.question-box').forEach((box, boxIndex) => {
+            box.querySelectorAll('button.choice-btn').forEach((btn, btnIndex) => {
+                if (btn.classList.contains('btn-correct')) {
+                    state.buttons.push({box: boxIndex, btn: btnIndex, status: 'correct'});
+                } else if (btn.classList.contains('btn-wrong')) {
+                    state.buttons.push({box: boxIndex, btn: btnIndex, status: 'wrong'});
+                }
+            });
+        });
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    // 2. Wczytywanie
+    function loadState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+
+        const state = JSON.parse(saved);
+
+        score = state.score || 0;
+        document.getElementById('score').innerText = score;
+        answeredQuestions = new Set(state.answeredIds);
+
+        // Inputy
+        for (const [id, value] of Object.entries(state.inputs)) {
+            const input = document.getElementById(id);
+            if (input) {
+                input.value = value;
+                let uid = getUniqueId(input);
+                if(answeredQuestions.has(uid)) {
+                    input.style.borderColor = '#66bb6a';
+                    input.style.backgroundColor = '#e8f5e9';
+                    const feedback = document.getElementById('fb-' + id);
+                    if(feedback) {
+                        feedback.innerHTML = '✅ Świetnie!';
+                        feedback.className = 'feedback correct';
+                    }
+                }
+            }
+        }
+
+        // Przyciski
+        const boxes = document.querySelectorAll('.question-box');
+        if(state.buttons) {
+            state.buttons.forEach(item => {
+                if(boxes[item.box]) {
+                    const btn = boxes[item.box].querySelectorAll('button.choice-btn')[item.btn];
+                    if(btn) {
+                        if(item.status === 'correct') {
+                            btn.classList.add('btn-correct');
+                            const feedback = boxes[item.box].querySelector('.feedback');
+                            if(feedback) {
+                                feedback.innerHTML = '✅ Dobrze!';
+                                feedback.className = 'feedback correct';
+                            }
+                        }
+                        if(item.status === 'wrong') btn.classList.add('btn-wrong');
+                    }
+                }
+            });
+        }
+    }
+
+    // 3. Reset
+    function resetTest() {
+        if(!confirm("Czy na pewno chcesz wyczyścić wszystkie odpowiedzi i zacząć od nowa?")) return;
+        
+        isResetting = true; 
+
+        localStorage.removeItem(STORAGE_KEY);
+
+        document.querySelectorAll('input[type="text"]').forEach(input => {
+            input.value = "";
+            input.style.backgroundColor = "";
+            input.style.borderColor = "";
+        });
+
+        document.querySelectorAll('.btn-correct, .btn-wrong').forEach(btn => {
+            btn.classList.remove('btn-correct', 'btn-wrong');
+        });
+
+        document.querySelectorAll('.feedback').forEach(fb => {
+            fb.innerHTML = "";
+            fb.className = "feedback";
+        });
+
+        score = 0;
+        document.getElementById('score').innerText = "0";
+        answeredQuestions.clear();
+
+        setTimeout(() => {
+            location.reload();
+        }, 100);
+    }
+
+    function addResetButton() {
+        const btn = document.createElement('button');
+        btn.innerText = "🗑️ ZRESETUJ TEST";
+        btn.onclick = resetTest;
+        btn.style.cssText = "position: fixed; top: 10px; left: 10px; background: #c62828; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; z-index: 2000; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);";
+        document.body.appendChild(btn);
+    }
+
+    // --- Logika Sprawdzania ---
+
+    function getUniqueId(element) {
+        if (element.id) return element.id;
+        let box = element.closest('.question-box');
+        let allBoxes = Array.from(document.querySelectorAll('.question-box'));
+        let index = allBoxes.indexOf(box);
+        return "qbox_" + index;
+    }
+
+    function updateScore(element) {
+        let uid = getUniqueId(element);
+        if (!answeredQuestions.has(uid)) {
+            score++;
+            document.getElementById('score').innerText = score;
+            answeredQuestions.add(uid);
+            saveState();
+        }
+    }
+
+    function checkChoice(btn, isCorrect) {
+        const parent = btn.parentElement;
+        const feedback = parent.nextElementSibling;
+        const btns = parent.getElementsByTagName('button');
+        
+        for(let b of btns) b.classList.remove('btn-correct', 'btn-wrong');
+
+        if (isCorrect) {
+            btn.classList.add('btn-correct');
+            feedback.innerHTML = '✅ Dobrze!';
+            feedback.className = 'feedback correct';
+            updateScore(btn); 
+        } else {
+            btn.classList.add('btn-wrong');
+            feedback.innerHTML = '❌ Spróbuj jeszcze raz';
+            feedback.className = 'feedback wrong';
+        }
+        saveState();
+    }
+
+    function checkSpelling(inputId, correctAnswer, altAnswer = null) {
+        const input = document.getElementById(inputId);
+        const feedback = document.getElementById('fb-' + inputId);
+        let userAnswer = input.value.trim().toLowerCase();
+        
+        userAnswer = userAnswer.replace('’', "'").replace('`', "'");
+
+        let isOk = (userAnswer === correctAnswer);
+        if (altAnswer && userAnswer === altAnswer) isOk = true;
+
+        if (isOk) {
+            input.style.borderColor = '#66bb6a';
+            input.style.backgroundColor = '#e8f5e9';
+            feedback.innerHTML = '✅ Świetnie!';
+            feedback.className = 'feedback correct';
+            updateScore(input);
+        } else {
+            input.style.borderColor = '#ef5350';
+            input.style.backgroundColor = '#ffebee';
+            feedback.innerHTML = '❌ Poprawnie: <b>' + correctAnswer + '</b>';
+            feedback.className = 'feedback wrong';
+        }
+        saveState();
+    }
+
+    function showFinalResult() {
+        document.getElementById('final-result').style.display = 'block';
+        document.getElementById('final-score').innerText = score;
+        const now = new Date();
+        document.getElementById('current-date').innerText = now.toLocaleDateString('pl-PL');
+        document.getElementById('final-result').scrollIntoView({behavior: "smooth"});
+        document.getElementById('finish-btn').style.display = 'none';
+    }
+
+    document.addEventListener('click', () => setTimeout(saveState, 50));
+    document.addEventListener('keyup', () => setTimeout(saveState, 1000));
+
+</script>
+
+</body>
+</html>
