@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dyktando: Wyprawa Grzegorza</title>
+    <style>
+        /* --- STYLE BAZOWE --- */
+        :root {
+            --primary: #1565c0; --primary-light: #e3f2fd; --accent: #ff6f00;
+            --success: #2e7d32; --error: #c62828; --bg-grid: #f5f5f5; --text-main: #263238;
+        }
+        body {
+            font-family: 'Verdana', 'Segoe UI', sans-serif; /* Verdana jest dobra dla dyslektyków */
+            background-color: var(--bg-grid);
+            background-image: radial-gradient(#cfd8dc 1px, transparent 1px);
+            background-size: 20px 20px; color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center;
+        }
+        .container {
+            background-color: #ffffff; width: 100%; max-width: 900px; padding: 40px; border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 12px solid var(--primary); position: relative;
+        }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 5px; font-size: 32px; letter-spacing: 1px; }
+        h2 { color: var(--primary); border-bottom: 2px solid #b0bec5; padding-bottom: 10px; margin-top: 50px; display: flex; align-items: center; gap: 10px; font-size: 24px; }
+        .instruction { background-color: var(--primary-light); padding: 15px; border-radius: 8px; color: #0d47a1; font-weight: 600; margin-bottom: 25px; border-left: 5px solid var(--primary); line-height: 1.5; }
+        
+        /* TIMER */
+        #timer-box {
+            position: fixed; top: 20px; right: 20px; background: #263238; color: #00e676;
+            font-family: 'Consolas', monospace; font-size: 24px; padding: 10px 20px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; border: 2px solid #fff;
+        }
+
+        /* PYTANIA - MODUŁ 1 i 2 */
+        .question-box { background-color: #fff; border: 2px solid #eceff1; border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: all 0.3s; position: relative; }
+        .question-box:hover { border-color: #90caf9; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .question-box.locked { background-color: #fafafa; border-color: #e0e0e0; opacity: 1; pointer-events: none; } /* Opacity 1 dla czytelności po rozwiązaniu */
+        
+        .sentence { font-size: 20px; margin-bottom: 15px; font-weight: 600; line-height: 1.6; }
+        .highlight { color: var(--primary); font-weight: bold; background: #e3f2fd; padding: 2px 6px; border-radius: 4px; border: 1px dashed var(--primary); }
+
+        /* INPUTY - CZYTELNOŚĆ DLA DYSLEKTYKA */
+        input[type="text"] { 
+            padding: 8px 12px; font-size: 20px; border: 2px solid #90a4ae; border-radius: 6px; 
+            width: 200px; text-align: center; color: #37474f; font-weight: bold; background-color: #fff; letter-spacing: 0.5px;
+            font-family: 'Verdana', sans-serif; transition: 0.2s;
+        }
+        input[type="text"]:focus { border-color: var(--primary); outline: none; background-color: #e3f2fd; transform: scale(1.02); }
+        
+        .check-btn { background-color: var(--primary); color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px; vertical-align: bottom; height: 46px; transition: 0.2s; }
+        .check-btn:hover:not(:disabled) { background-color: #0d47a1; transform: translateY(-2px); }
+        .check-btn:disabled { background-color: #cfd8dc; color: #90a4ae; cursor: default; }
+
+        /* DYKTANDO CIĄGŁE - style specyficzne */
+        .dictation-text {
+            font-size: 22px; line-height: 2.2; text-align: justify;
+            background-color: #fff; border: 3px solid #b0bec5; padding: 30px; border-radius: 10px;
+        }
+        .gap-input {
+            border: none; border-bottom: 3px solid var(--accent); background: #fff8e1;
+            width: 140px; padding: 0 5px; margin: 0 5px; display: inline-block;
+            text-align: center; font-weight: bold; color: #000; border-radius: 4px;
+        }
+        .gap-input:focus { border-bottom-color: var(--primary); background: #e1f5fe; }
+        .gap-input.correct { background-color: #c8e6c9 !important; border-bottom: 3px solid #2e7d32 !important; color: #1b5e20 !important; }
+        .gap-input.wrong { background-color: #ffcdd2 !important; border-bottom: 3px solid #c62828 !important; color: #b71c1c !important; text-decoration: line-through; }
+        
+        .correction-label { font-size: 14px; color: #c62828; font-weight: bold; margin-left: 5px; display: none; }
+
+        /* WYNIKI */
+        .feedback { margin-top: 10px; font-weight: bold; font-size: 18px; min-height: 25px; display: inline-block; margin-left: 10px;}
+        .correct { color: var(--success); } .wrong { color: var(--error); }
+        
+        .result-section { display: none; margin-top: 40px; padding: 30px; background-color: #fff; border: 4px solid var(--primary); border-radius: 15px; text-align: center; }
+        .diagnostic-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 18px; }
+        .diagnostic-table th, .diagnostic-table td { border: 1px solid #cfd8dc; padding: 12px; text-align: left; }
+        .diagnostic-table th { background-color: var(--primary); color: white; }
+
+        @media print {
+            #timer-box, #reset-btn, #finish-btn, .check-btn, #btn-check-dictation { display: none !important; }
+            .result-section { display: block !important; border: 1px solid black; }
+            body { background: white; } .container { box-shadow: none; border: none; width: 100%; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="timer-box">&#9201; <span id="timer">00:00</span></div>
+<button id="reset-btn" onclick="resetTest()" style="position:fixed; top:70px; right:20px; background:#ef5350; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; z-index:999;">Resetuj</button>
+
+<div class="container">
+    <h1 id="test-title">MISTRZ ORTOGRAFII</h1>
+    <p id="test-subtitle" style="text-align: center; color: #546e7a;">Poziom 2: Trudne słowa i Dyktando (Klasa 4)</p>
+    
+    <div style="text-align: center; background: #fff3e0; padding: 10px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #ffe0b2; color: #e65100;">
+        <strong>&#9888; ZASADY:</strong> Wpisuj pełne wyrazy. Uważaj na "rz" i "ż". Nie zgaduj!
+    </div>
+
+    <div id="questions-container">
+        
+        <h2>&#128269; Moduł 1: Bezwzględna Wymiana</h2>
+        <div class="instruction">
+            Tu nie ma pułapek. Każde słowo z "rz" wymienia się na "r".<br>
+            Wpisz słowo <b>wymienne</b> (bez "rz"), które udowadnia pisownię.<br>
+            <i>Przykład: morze, bo... <b>morski</b>.</i>
+        </div>
+
+        <div class="question-box" id="q1" data-category="wymiana">
+            <div class="sentence">Musisz w to <span class="highlight">uwierzyć</span>, bo twoja ............ jest wielka.</div>
+            <input type="text" id="in1" placeholder="co? (zamiast rz)" autocomplete="off">
+            <button class="check-btn" onclick="checkInput('q1', 'in1', ['wiara'])">Sprawdź</button>
+            <div class="feedback" id="fb-in1"></div>
+        </div>
+
+        <div class="question-box" id="q2" data-category="wymiana">
+            <div class="sentence">Ten <span class="highlight">starzec</span> nie zawsze był taki ............ .</div>
+            <input type="text" id="in2" placeholder="jaki?" autocomplete="off">
+            <button class="check-btn" onclick="checkInput('q2', 'in2', ['stary'])">Sprawdź</button>
+            <div class="feedback" id="fb-in2"></div>
+        </div>
+
+        <div class="question-box" id="q3" data-category="wymiana">
+            <div class="sentence">To jest gniazdo <span class="highlight">orła</span>. To jest gniazdo ............ .</div>
+            <input type="text" id="in3" placeholder="jakie?" autocomplete="off">
+            <button class="check-btn" onclick="checkInput('q3', 'in3', ['orle'])">Sprawdź</button>
+            <div class="feedback" id="fb-in3"></div>
+        </div>
+
+        <div class="question-box" id="q4" data-category="wymiana">
+            <div class="sentence">Krawiec musi <span class="highlight">zmierzyć</span> materiał. Zdejmuje z klienta ............ .</div>
+            <input type="text" id="in4" placeholder="co?" autocomplete="off">
+            <button class="check-btn" onclick="checkInput('q4', 'in4', ['miarę', 'miara'])">Sprawdź</button>
+            <div class="feedback" id="fb-in4"></div>
+        </div>
+
+
+        <h2>&#9888; Moduł 2: Trudne Spółgłoski i Wyjątki</h2>
+        <div class="instruction">
+            Wpisz <b>cały wyraz</b>. Pamiętaj o wyjątkach (pszczoła, kształt) oraz regule pisowni po spółgłoskach (p, b, t, d, k, g, ch, j, w).
+        </div>
+
+        <div class="question-box" id="q5" data-category="wyjatki">
+            <div class="sentence">Na łące bzyczy pracowita <b>p</b>........ . (pszczoła czy przczoła?)</div>
+            <input type="text" id="in5" placeholder="wpisz wyraz" autocomplete="off">
+            <button class="check-btn" onclick="checkInput('q5', 'in5', ['pszczoła'])">Sprawdź</button>
+            <div class="feedback" id="fb-in5"></div>
+        </div>
+
+        <div class="question-box" id="q6" data-category="wyjatki">
+            <div class="sentence">To koło ma idealny <b>k</b>.......t. (kształt czy krztałt?)</div>
+            <input type="text" id="in6" placeholder="wpisz wyraz" autocomplete="off">
+            <button class="check-btn" onclick="checkInput('q6', 'in6', ['kształt'])">Sprawdź</button>
+            <div class="feedback" id="fb-in6"></div>
+        </div>
+
+        <div class="question-box" id="q7" data-category="wyjatki">
+            <div class="sentence">Podczas burzy słychać głośny <b>g</b>.......t.</div>
+            <input type="text" id="in7" placeholder="wpisz wyraz" autocomplete="off">
+            <button class="check-btn" onclick="checkInput('q7', 'in7', ['grzmot'])">Sprawdź</button>
+            <div class="feedback" id="fb-in7"></div>
+        </div>
+
+        <div class="question-box" id="q8" data-category="wyjatki">
+            <div class="sentence">W Szczebrzeszynie w trzcinie brzmi <b>ch</b>.......szcz.</div>
+            <input type="text" id="in8" placeholder="wpisz wyraz" autocomplete="off">
+            <button class="check-btn" onclick="checkInput('q8', 'in8', ['chrząszcz'])">Sprawdź</button>
+            <div class="feedback" id="fb-in8"></div>
+        </div>
+
+
+        <h2>&#128221; Moduł 3: Prawdziwe Dyktando</h2>
+        <div class="instruction">
+            Przeczytaj tekst: "Wyprawa Grzegorza". Wpisz brakujące wyrazy w luki.
+            <br>Gdy uzupełnisz wszystko, kliknij przycisk na dole.
+        </div>
+
+        <div class="dictation-text" id="dictation-block">
+            <input type="text" class="gap-input" data-answer="Grzegorz" placeholder="Imię"> to bardzo 
+            <input type="text" class="gap-input" data-answer="odważny" placeholder="jaki?"> 
+            <input type="text" class="gap-input" data-answer="harcerz" placeholder="kto?">.
+            Pewnego dnia wybrał się na wycieczkę 
+            <input type="text" class="gap-input" data-answer="wzdłuż" placeholder="jak?"> rzeki.
+            Na 
+            <input type="text" class="gap-input" data-answer="brzegu" placeholder="gdzie?"> rosły potężne 
+            <input type="text" class="gap-input" data-answer="wierzby" placeholder="drzewa"> i 
+            <input type="text" class="gap-input" data-answer="jarzębiny" placeholder="drzewa">.
+            Nagle chłopiec 
+            <input type="text" class="gap-input" data-answer="ujrzał" placeholder="co zrobił?"> dużą 
+            <input type="text" class="gap-input" data-answer="żabę" placeholder="zwierzę">, która wskoczyła w 
+            <input type="text" class="gap-input" data-answer="chaszcze" placeholder="krzaki">.
+            Chwilę później 
+            <input type="text" class="gap-input" data-answer="zagrzmiało" placeholder="zjawisko"> i rozpętała się groźna 
+            <input type="text" class="gap-input" data-answer="burza" placeholder="zjawisko">.
+            Grzegorz 
+            <input type="text" class="gap-input" data-answer="zadrżał" placeholder="co zrobił?"> z zimna, więc szybko włożył 
+            <input type="text" class="gap-input" data-answer="kożuch" placeholder="ubranie">.
+            <input type="text" class="gap-input" data-answer="Marzył" placeholder="co robił?"> już tylko o gorącym 
+            <input type="text" class="gap-input" data-answer="talerzu" placeholder="naczyniu"> zupy.
+        </div>
+        
+        <div style="text-align: right; margin-top: 15px;">
+            <button id="btn-check-dictation" onclick="checkDictation()" style="background-color: var(--accent); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">Sprawdź Całe Dyktando &#10004;</button>
+        </div>
+
+    </div>
+
+    <div style="text-align: center; margin-top: 60px; margin-bottom: 40px;">
+        <button id="finish-btn" onclick="finishTest()" style="padding: 18px 50px; background-color: #37474f; color: white; font-size: 22px; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: bold; transition: transform 0.2s;">&#127937; PODSUMUJ WYNIKI</button>
+    </div>
+
+    <div id="final-result" class="result-section">
+        <h2 style="font-size: 28px; border: none; justify-content: center; margin-top: 0;">&#127942; RAPORT KOŃCOWY</h2>
+        
+        <div style="font-size: 18px; margin-bottom: 20px;">
+            Imię i nazwisko: <input type="text" id="student-name" placeholder="Wpisz imię..." style="width: 250px; padding: 8px; font-weight: bold; background: white; border: 2px solid var(--primary); border-radius: 5px; font-size: 18px;">
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0;">
+            <div>
+                <div style="font-size: 14px; color: #777;">PUNKTY</div>
+                <div style="font-size: 36px; font-weight: bold; color: var(--primary);"><span id="final-score">0</span> / <span id="final-max">0</span></div>
+            </div>
+            <div>
+                <div style="font-size: 14px; color: #777;">CZAS PRACY</div>
+                <div style="font-size: 36px; font-weight: bold; color: var(--accent);"><span id="final-time">00:00</span></div>
+            </div>
+        </div>
+
+        <h3 style="text-align: left; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">&#128202; Szczegółowa Analiza:</h3>
+        <table class="diagnostic-table">
+            <thead><tr><th>Obszar</th><th>Poprawne</th><th>Ocena</th></tr></thead>
+            <tbody id="diagnostic-body"></tbody>
+        </table>
+
+        <button onclick="window.print()" style="background-color: #546e7a; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; border: none; margin-top: 20px;">🖨️ Zapisz jako PDF / Drukuj</button>
+    </div>
+</div>
+
+<script>
+    // --- KONFIGURACJA ---
+    const STORAGE_KEY = 'dyktando_rz_z_kl4_v2'; 
+    const catNames = { 
+        'wymiana': 'Moduł 1: Bezwzględna Wymiana', 
+        'wyjatki': 'Moduł 2: Trudne Spółgłoski',
+        'dyktando': 'Moduł 3: Dyktando (Wyprawa Grzegorza)'
+    };
+
+    let state = { score: 0, answeredIds: {}, startTime: null, endTime: null, isFinished: false, dictationChecked: false };
+    let timerInterval;
+
+    window.addEventListener('load', () => {
+        loadState();
+        if (!state.startTime) { state.startTime = Date.now(); saveState(); }
+        if(!state.isFinished) { timerInterval = setInterval(updateTimer, 1000); } 
+        else { showFinalResult(false); document.getElementById('timer').innerText = formatTime(state.endTime - state.startTime); }
+        
+        // Oblicz MAX punktów (pytania standardowe + luki w dyktandzie)
+        const standardQ = document.querySelectorAll('.question-box').length;
+        const dictationGaps = document.querySelectorAll('.gap-input').length;
+        document.getElementById('final-max').innerText = standardQ + dictationGaps;
+    });
+
+    function updateTimer() {
+        const diff = Date.now() - state.startTime;
+        document.getElementById('timer').innerText = formatTime(diff);
+    }
+    function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const m = Math.floor(totalSeconds / 60); const s = totalSeconds % 60;
+        return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
+    }
+
+    // --- SPRAWDZANIE POJEDYNCZYCH PYTAŃ (MODUŁ 1 i 2) ---
+    function checkInput(qId, inputId, correctAnswers) {
+        if (state.answeredIds[qId] !== undefined || state.isFinished) return;
+        const input = document.getElementById(inputId);
+        const btn = input.nextElementSibling;
+        const feedback = document.getElementById('fb-' + inputId);
+        
+        let val = input.value.trim().replace(/\s/g, '').toLowerCase();
+        let correctList = correctAnswers.map(a => a.toString().replace(/\s/g, '').toLowerCase());
+        const isCorrect = correctList.includes(val);
+
+        state.answeredIds[qId] = isCorrect;
+        if(isCorrect) state.score++;
+
+        input.disabled = true; btn.disabled = true;
+        input.closest('.question-box').classList.add('locked');
+
+        if(isCorrect) {
+            input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9';
+            feedback.innerHTML = '<span class="correct">&#10004; Dobrze!</span>';
+        } else {
+            input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee';
+            feedback.innerHTML = '<span class="wrong">&#10006; Odpowiedź: ' + correctAnswers[0] + '</span>';
+        }
+        saveState();
+    }
+
+    // --- SPRAWDZANIE DYKTANDA (MODUŁ 3) ---
+    function checkDictation() {
+        if(state.dictationChecked || state.isFinished) return;
+        
+        let allGaps = document.querySelectorAll('.gap-input');
+        let allFilled = true;
+        allGaps.forEach(gap => { if(gap.value.trim() === '') allFilled = false; });
+
+        if(!allFilled) {
+            if(!confirm("Masz puste pola w dyktandzie. Czy na pewno chcesz sprawdzić teraz?")) return;
+        }
+
+        let correctCount = 0;
+        
+        allGaps.forEach((gap, index) => {
+            let val = gap.value.trim().toLowerCase();
+            let correct = gap.getAttribute('data-answer').toLowerCase();
+            let isOk = (val === correct);
+            
+            // Zapisz wynik dla każdej luki osobno w stanie
+            let gapId = 'gap_' + index;
+            state.answeredIds[gapId] = isOk;
+
+            gap.disabled = true;
+            if(isOk) {
+                gap.classList.add('correct');
+                correctCount++;
+                state.score++;
+            } else {
+                gap.classList.add('wrong');
+                // Dodaj poprawną odpowiedź obok
+                let span = document.createElement('span');
+                span.className = 'correction-label';
+                span.innerText = gap.getAttribute('data-answer');
+                gap.parentNode.insertBefore(span, gap.nextSibling);
+                span.style.display = "inline";
+            }
+        });
+
+        state.dictationChecked = true;
+        document.getElementById('btn-check-dictation').disabled = true;
+        document.getElementById('btn-check-dictation').innerText = "Dyktando Sprawdzone";
+        saveState();
+    }
+
+    // --- ZAPIS STANU ---
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    function loadState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) { state = JSON.parse(saved); restoreUI(); }
+    }
+    
+    function restoreUI() {
+        // Przywróć zwykłe pytania
+        for (const [key, isCorrect] of Object.entries(state.answeredIds)) {
+            if(key.startsWith('gap_')) continue; // Pomiń luki dyktanda w tej pętli
+            
+            const box = document.getElementById(key);
+            if(!box) continue;
+            
+            box.classList.add('locked');
+            const input = box.querySelector('input');
+            const btn = box.querySelector('button');
+            const fb = box.querySelector('.feedback');
+            
+            if(input) {
+                input.disabled = true; btn.disabled = true;
+                if(isCorrect) { 
+                    input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9'; 
+                    fb.innerHTML = '<span class="correct">&#10004;</span>';
+                } else { 
+                    input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee'; 
+                    fb.innerHTML = '<span class="wrong">&#10006;</span>';
+                }
+            }
+        }
+
+        // Przywróć dyktando
+        if(state.dictationChecked) {
+            const btn = document.getElementById('btn-check-dictation');
+            btn.disabled = true; btn.innerText = "Dyktando Sprawdzone";
+            
+            const gaps = document.querySelectorAll('.gap-input');
+            gaps.forEach((gap, index) => {
+                gap.disabled = true;
+                let gapId = 'gap_' + index;
+                let isOk = state.answeredIds[gapId];
+                
+                if(isOk) {
+                    gap.classList.add('correct');
+                } else {
+                    gap.classList.add('wrong');
+                    let span = document.createElement('span');
+                    span.className = 'correction-label';
+                    span.innerText = gap.getAttribute('data-answer');
+                    gap.parentNode.insertBefore(span, gap.nextSibling);
+                    span.style.display = "inline";
+                }
+            });
+        }
+    }
+
+    function resetTest() { if(confirm('Zresetować test?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+
+    // --- FINAŁ ---
+    function finishTest() {
+        if(!state.dictationChecked) {
+            alert("Najpierw sprawdź dyktando (przycisk pod tekstem)!");
+            return;
+        }
+        
+        clearInterval(timerInterval); state.isFinished = true; state.endTime = Date.now();
+        saveState(); showFinalResult(true);
+    }
+
+    function showFinalResult(scroll) {
+        document.getElementById('final-score').innerText = state.score;
+        if(state.endTime) document.getElementById('final-time').innerText = formatTime(state.endTime - state.startTime);
+        
+        let stats = {
+            'wymiana': { total: 0, correct: 0 },
+            'wyjatki': { total: 0, correct: 0 },
+            'dyktando': { total: 0, correct: 0 }
+        };
+
+        // Zliczanie standardowych
+        document.querySelectorAll('.question-box').forEach(box => {
+            let cat = box.getAttribute('data-category');
+            if(stats[cat]) {
+                stats[cat].total++;
+                if(state.answeredIds[box.id] === true) stats[cat].correct++;
+            }
+        });
+
+        // Zliczanie dyktanda
+        const gapCount = document.querySelectorAll('.gap-input').length;
+        stats['dyktando'].total = gapCount;
+        for(let i=0; i<gapCount; i++) {
+            if(state.answeredIds['gap_'+i] === true) stats['dyktando'].correct++;
+        }
+
+        const tbody = document.getElementById('diagnostic-body');
+        tbody.innerHTML = '';
+
+        for (const [cat, data] of Object.entries(stats)) {
+            if(data.total === 0) continue;
+            let p = Math.round((data.correct / data.total) * 100);
+            let color = p >= 75 ? '#2e7d32' : (p >= 50 ? '#f57c00' : '#c62828');
+            let label = p >= 75 ? 'Świetnie' : (p >= 50 ? 'Dobrze' : 'Musisz poćwiczyć');
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td><b>${catNames[cat]}</b></td>
+                    <td>${data.correct} / ${data.total}</td>
+                    <td style="color:${color}; font-weight:bold;">${p}% (${label})</td>
+                </tr>`;
+        }
+
+        document.getElementById('final-result').style.display = 'block';
+        document.getElementById('finish-btn').style.display = 'none';
+        if(scroll) document.getElementById('final-result').scrollIntoView({behavior: 'smooth'});
+    }
+</script>
+</body>
+</html>
