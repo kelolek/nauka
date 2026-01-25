@@ -62,6 +62,10 @@
         .check-btn { background-color: var(--primary); color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px; }
         .check-btn:hover:not(:disabled) { background-color: #01579b; }
         .check-btn:disabled { background-color: #b0bec5; cursor: default; }
+        
+        /* Specjalne style dla Finału */
+        .final-row { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px dashed #cfd8dc; }
+        .pl-hint { color: #546e7a; font-size: 0.9em; font-style: italic; margin-bottom: 5px; display: block; }
 
         /* WYNIKI */
         .feedback { margin-top: 12px; font-weight: bold; font-size: 16px; min-height: 24px; }
@@ -248,7 +252,8 @@
             <div class="options">
                 <button class="choice-btn" onclick="checkChoice('q18', this, false)">haven't</button>
                 <button class="choice-btn" onclick="checkChoice('q18', this, false)">hasn't</button>
-                <button class="choice-btn" onclick="checkChoice('q18', this, true)">haven't</button> </div>
+                <button class="choice-btn" onclick="checkChoice('q18', this, true)">haven't</button>
+            </div>
             <div class="feedback"></div>
         </div>
     </div>
@@ -331,34 +336,34 @@
     </div>
 
     <h2>&#9997; 5. Gramatyka: Zdania (8 pkt)</h2>
-    <div class="instruction">Uważaj na formy skrócone i pełne!</div>
+    <div class="instruction">Uważaj na formy skrócone i pełne! Nie podglądaj - myśl! &#128521;</div>
 
     <div class="question-box" id="q31" data-category="grammar">
-        <div class="sentence">Przeczenie: I have got &#8594; I <input type="text" id="in31" oninput="startTimerIfNeeded()" placeholder="haven't"> got.
+        <div class="sentence">Przeczenie: I have got &#8594; I <input type="text" id="in31" oninput="startTimerIfNeeded()" placeholder="wpisz przeczenie"> got.
         <button class="check-btn" onclick="checkInput('q31', 'in31', ['haven\'t', 'have not'])">Sprawdź</button></div>
         <div class="feedback" id="fb-in31"></div>
     </div>
 
     <div class="question-box" id="q32" data-category="grammar">
-        <div class="sentence">Przeczenie: She has got &#8594; She <input type="text" id="in32" oninput="startTimerIfNeeded()" placeholder="hasn't"> got.
+        <div class="sentence">Przeczenie: She has got &#8594; She <input type="text" id="in32" oninput="startTimerIfNeeded()" placeholder="wpisz przeczenie"> got.
         <button class="check-btn" onclick="checkInput('q32', 'in32', ['hasn\'t', 'has not'])">Sprawdź</button></div>
         <div class="feedback" id="fb-in32"></div>
     </div>
 
     <div class="question-box" id="q33" data-category="grammar">
-        <div class="sentence">Przeczenie (pełna forma): He has got &#8594; He <input type="text" id="in33" oninput="startTimerIfNeeded()" placeholder="has not"> got.
+        <div class="sentence">Przeczenie (pełna forma): He has got &#8594; He <input type="text" id="in33" oninput="startTimerIfNeeded()" placeholder="pełne słowo NOT"> got.
         <button class="check-btn" onclick="checkInput('q33', 'in33', ['has not'])">Sprawdź</button></div>
         <div class="feedback" id="fb-in33"></div>
     </div>
 
     <div class="question-box" id="q34" data-category="grammar">
-        <div class="sentence">Pytanie: (Ty masz) <input type="text" id="in34" oninput="startTimerIfNeeded()" placeholder="Have you"> got a cat?
+        <div class="sentence">Pytanie: (Ty masz) <input type="text" id="in34" oninput="startTimerIfNeeded()" placeholder="Ty masz...?"> got a cat?
         <button class="check-btn" onclick="checkInput('q34', 'in34', ['have you'])">Sprawdź</button></div>
         <div class="feedback" id="fb-in34"></div>
     </div>
 
     <div class="question-box" id="q35" data-category="grammar">
-        <div class="sentence">Pytanie: (Ona ma) <input type="text" id="in35" oninput="startTimerIfNeeded()" placeholder="Has she"> got a doll?
+        <div class="sentence">Pytanie: (Ona ma) <input type="text" id="in35" oninput="startTimerIfNeeded()" placeholder="Ona ma...?"> got a doll?
         <button class="check-btn" onclick="checkInput('q35', 'in35', ['has she'])">Sprawdź</button></div>
         <div class="feedback" id="fb-in35"></div>
     </div>
@@ -413,23 +418,48 @@
 
     <div class="question-box" id="q42" data-category="writing_final" style="line-height: 2.5;">
         <div class="sentence" style="display: block;">
-            Mam nowego zwierzaka. <br>
-            I <input type="text" id="in42a" placeholder="mam" style="width:100px;"> <input type="text" id="in42b" placeholder="got" style="width:60px;"> a new pet. <br>
             
-            To jest królik. It <input type="text" id="in42c" placeholder="jest" style="width:60px;"> a rabbit. <br>
-            
-            Ma na imię "Speedy". His name is Speedy. <br>
-            
-            Speedy jest bardzo szybki. Speedy is very <input type="text" id="in42d" placeholder="szybki" style="width:100px;">. <br>
-            
-            On ma długie uszy. He <input type="text" id="in42e" placeholder="ma" style="width:60px;"> got long <input type="text" id="in42f" placeholder="uszy" style="width:100px;">. <br>
-            
-            Nie ma skrzydeł. He <input type="text" id="in42g" placeholder="nie ma" style="width:100px;"> got <input type="text" id="in42h" placeholder="skrzydeł" style="width:100px;">. <br>
-            
-            Ma małe stopy i białe zęby. He has got small <input type="text" id="in42i" placeholder="stopy" style="width:100px;"> and white <input type="text" id="in42j" placeholder="zęby" style="width:100px;">. <br>
-            
-            Kocham go! I love him!
-            <br><br>
+            <div class="final-row">
+                <span class="pl-hint">Mam nowego zwierzaka.</span>
+                I <input type="text" id="in42a" placeholder="mieć" style="width:100px;"> <input type="text" id="in42b" placeholder="..." style="width:60px;"> a new pet.
+            </div>
+
+            <div class="final-row">
+                <span class="pl-hint">To jest królik.</span>
+                It <input type="text" id="in42c" placeholder="być" style="width:60px;"> a rabbit.
+            </div>
+
+            <div class="final-row">
+                <span class="pl-hint">Ma na imię "Speedy".</span>
+                His name <input type="text" id="in42k" placeholder="być" style="width:60px;"> Speedy.
+            </div>
+
+            <div class="final-row">
+                <span class="pl-hint">Speedy jest bardzo szybki.</span>
+                Speedy is very <input type="text" id="in42d" placeholder="szybki" style="width:100px;">.
+            </div>
+
+            <div class="final-row">
+                <span class="pl-hint">On ma długie uszy.</span>
+                He <input type="text" id="in42e" placeholder="mieć" style="width:60px;"> got long <input type="text" id="in42f" placeholder="uszy" style="width:100px;">.
+            </div>
+
+            <div class="final-row">
+                <span class="pl-hint">Nie ma skrzydeł.</span>
+                He <input type="text" id="in42g" placeholder="nie ma" style="width:100px;"> got <input type="text" id="in42h" placeholder="skrzydeł" style="width:100px;">.
+            </div>
+
+            <div class="final-row">
+                <span class="pl-hint">Ma małe stopy i białe zęby.</span>
+                He has got small <input type="text" id="in42i" placeholder="stopy" style="width:100px;"> and white <input type="text" id="in42j" placeholder="zęby" style="width:100px;">.
+            </div>
+
+            <div class="final-row">
+                <span class="pl-hint">Kocham go!</span>
+                I love him!
+            </div>
+
+            <br>
             <button class="check-btn" onclick="checkFinalText()">Sprawdź Cały Tekst</button>
         </div>
         <div class="feedback" id="fb-final"></div>
@@ -466,7 +496,7 @@
 <script>
     // --- KONFIGURACJA ---
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_ByEj8poSy36m8iehCHYmislHj0sTvHLRhQPUkgic_L5Ss8fXrF_a2THkm-hpuZL0OA/exec"; 
-    const STORAGE_KEY = 'unit4_animals_mega_v1'; 
+    const STORAGE_KEY = 'unit4_animals_mega_v3'; 
 
     const catNames = { 
         'vocab': 'Słownictwo (Zwierzęta/Cechy)', 
@@ -495,8 +525,8 @@
     function calculateMaxScore() {
         // Liczenie pytań standardowych
         let count = document.querySelectorAll('.question-box:not([data-category="writing_final"])').length;
-        // Dodanie 10 pkt za finał
-        count += 10; 
+        // Dodanie 11 pkt za finał (dodano 1 input)
+        count += 11; 
         document.getElementById('final-max').innerText = count;
     }
 
@@ -575,7 +605,7 @@
         if (state.answeredIds['q42'] !== undefined || state.isFinished) return;
         
         const answers = {
-            'in42a': ['have'], 'in42b': ['got'], 'in42c': ['is'], 
+            'in42a': ['have'], 'in42b': ['got'], 'in42c': ['is'], 'in42k': ['is'],
             'in42d': ['fast', 'quick'], 'in42e': ['has'], 'in42f': ['ears'],
             'in42g': ['hasn\'t', 'has not'], 'in42h': ['wings'],
             'in42i': ['feet'], 'in42j': ['teeth']
@@ -607,11 +637,11 @@
         }
 
         state.score += correctCount;
-        state.answeredIds['q42'] = correctCount; // store number of points instead of bool
+        state.answeredIds['q42'] = correctCount; 
         
         const btn = document.querySelector('#q42 button');
         btn.disabled = true;
-        btn.innerText = `Wynik: ${correctCount}/10`;
+        btn.innerText = `Wynik: ${correctCount}/${total}`;
         
         saveState();
     }
@@ -626,11 +656,10 @@
     function restoreUI() {
         for (const [qId, val] of Object.entries(state.answeredIds)) {
             if(qId === 'q42') {
-                 // Przywracanie final text
-                 const box = document.getElementById(q42);
+                 const box = document.getElementById('q42');
                  if(box) {
                      box.querySelectorAll('input').forEach(i => i.disabled=true);
-                     box.querySelector('button').innerText = `Wynik: ${val}/10`;
+                     box.querySelector('button').innerText = `Wynik: ${val}/11`;
                      box.querySelector('button').disabled = true;
                  }
                  continue;
@@ -643,7 +672,6 @@
             const input = box.querySelector('input');
             if(input) {
                 input.disabled = true; 
-                // Restore colors roughly based on stored val (true/false)
                 if(val) { input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9'; }
                 else { input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee'; }
             }
@@ -667,7 +695,6 @@
         
         let stats = {};
         
-        // Zliczanie standardowych
         document.querySelectorAll('.question-box:not([data-category="writing_final"])').forEach(box => {
             let cat = box.getAttribute('data-category');
             if(!stats[cat]) stats[cat] = { total: 0, correct: 0 };
@@ -675,12 +702,10 @@
             if(state.answeredIds[box.id] === true) stats[cat].correct++;
         });
 
-        // Zliczanie finału (q42)
         if(state.answeredIds['q42']) {
-             if(!stats['writing_final']) stats['writing_final'] = { total: 10, correct: state.answeredIds['q42'] };
+             if(!stats['writing_final']) stats['writing_final'] = { total: 11, correct: state.answeredIds['q42'] };
         } else {
-             // Jeśli user zakończył bez sprawdzania tekstu
-             stats['writing_final'] = { total: 10, correct: 0 };
+             stats['writing_final'] = { total: 11, correct: 0 };
         }
 
         const tbody = document.getElementById('diagnostic-body');
@@ -698,8 +723,7 @@
     }
 
     function sendToGoogleSheets() {
-        // ... (Kod taki sam jak w szablonie v2 - skrócony dla czytelności tutaj, ale w pliku musi być pełny) ...
-        alert("Funkcja wysyłania wymaga skonfigurowania URL w kodzie!");
+        alert("Pamiętaj o konfiguracji linku w kodzie!");
     }
 </script>
 </body>
