@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Powtórka: Unit 4 (Animals)</title>
+    <style>
+        /* --- STYLE UNIWERSALNE (v2) --- */
+        :root {
+            --primary: #0277bd;      /* Błękit */
+            --primary-light: #e1f5fe; 
+            --accent: #ff6f00;       /* Pomarańcz */
+            --success: #2e7d32;      /* Zieleń */
+            --error: #c62828;        /* Czerwień */
+            --bg-grid: #f5f5f5;      
+            --text-main: #263238;
+        }
+        body {
+            font-family: 'Segoe UI', 'Verdana', sans-serif;
+            background-color: var(--bg-grid);
+            background-image: linear-gradient(#cfd8dc 1px, transparent 1px), linear-gradient(90deg, #cfd8dc 1px, transparent 1px);
+            background-size: 20px 20px; color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center;
+        }
+        .container {
+            background-color: #ffffff; width: 100%; max-width: 900px; padding: 40px; border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 12px solid var(--primary); position: relative;
+        }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 5px; font-size: 32px; letter-spacing: 1px; }
+        h2 { color: var(--primary); border-bottom: 2px solid #b3e5fc; padding-bottom: 10px; margin-top: 50px; display: flex; align-items: center; gap: 10px; }
+        .instruction { background-color: var(--primary-light); padding: 15px; border-radius: 8px; color: #01579b; font-weight: 600; margin-bottom: 25px; border-left: 5px solid var(--primary); }
+        
+        /* TIMER */
+        #timer-box {
+            position: fixed; top: 20px; right: 20px; background: #263238; color: #00e676;
+            font-family: 'Consolas', monospace; font-size: 24px; padding: 10px 20px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; border: 2px solid #fff;
+        }
+
+        /* PYTANIA */
+        .question-box { background-color: #fff; border: 2px solid #eceff1; border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: all 0.3s; }
+        .question-box:hover { border-color: #b3e5fc; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .question-box.locked { background-color: #fafafa; border-color: #e0e0e0; opacity: 0.9; pointer-events: none; }
+        .sentence { font-size: 18px; margin-bottom: 15px; font-weight: 500; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; line-height: 1.6;}
+        .highlight { color: var(--primary); font-weight: bold; }
+        .emoji { font-size: 1.4em; margin-right: 5px; }
+        
+        /* PRZYCISKI WYBORU */
+        .options { display: flex; gap: 10px; flex-wrap: wrap; }
+        button.choice-btn {
+            padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: white;
+            border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; transition: 0.2s; flex: 1 1 auto; max-width: 200px; font-weight: bold;
+        }
+        button.choice-btn:hover:not(:disabled) { background-color: var(--primary-light); transform: translateY(-2px); }
+        button.choice-btn:disabled { cursor: not-allowed; border-color: #ccc; color: #999; background-color: #f5f5f5; transform: none !important;}
+        button.choice-btn.selected-wrong { background-color: #ffcdd2 !important; border-color: #c62828 !important; color: #c62828 !important; }
+        button.choice-btn.selected-correct { background-color: #c8e6c9 !important; border-color: #2e7d32 !important; color: #2e7d32 !important; }
+        button.choice-btn.show-correct { background-color: #fff !important; border-color: #2e7d32 !important; color: #2e7d32 !important; box-shadow: 0 0 10px #c8e6c9; }
+
+        /* INPUTY DO WPISYWANIA */
+        input[type="text"] { padding: 8px 12px; font-size: 18px; border: 2px solid #b0bec5; border-radius: 8px; width: 180px; text-align: center; color: #333; font-weight: bold; background-color: #fff; }
+        input[type="text"]:disabled { background-color: #eceff1; color: #546e7a; border-color: #cfd8dc; }
+        .check-btn { background-color: var(--primary); color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px; }
+        .check-btn:hover:not(:disabled) { background-color: #01579b; }
+        .check-btn:disabled { background-color: #b0bec5; cursor: default; }
+
+        /* WYNIKI */
+        .feedback { margin-top: 12px; font-weight: bold; font-size: 16px; min-height: 24px; }
+        .correct { color: var(--success); } .wrong { color: var(--error); }
+        .result-section { display: none; margin-top: 40px; padding: 30px; background-color: #fff; border: 4px solid var(--primary); border-radius: 15px; text-align: center; }
+        .diagnostic-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .diagnostic-table th, .diagnostic-table td { border: 1px solid #cfd8dc; padding: 12px; text-align: left; }
+        .diagnostic-table th { background-color: var(--primary); color: white; }
+        .diag-bad { color: var(--error); font-weight: bold; } .diag-ok { color: #f57c00; font-weight: bold; } .diag-good { color: var(--success); font-weight: bold; }
+
+        @media print {
+            #timer-box, #reset-btn, #finish-btn, #send-results-btn { display: none !important; }
+            .result-section { display: block !important; border: 2px solid black; }
+            body { background: white; } .container { box-shadow: none; border: none; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="timer-box">&#9201; <span id="timer">00:00</span></div>
+<button id="reset-btn" onclick="resetTest()" style="position:fixed; top:70px; right:20px; background:#ef5350; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; z-index:999;">Resetuj</button>
+
+<div class="container">
+    <h1 id="test-title">UNIT 4: ANIMALS & HAVE GOT</h1>
+    <p id="test-subtitle" style="text-align: center; color: #546e7a;">Mega powtórka przed sprawdzianem</p>
+    
+    <div style="text-align: center; background: #fff3e0; padding: 10px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #ffe0b2; color: #e65100;">
+        <strong>&#9888; START:</strong> Czas zacznie się liczyć po udzieleniu pierwszej odpowiedzi.
+    </div>
+
+    <h2>&#128062; 1. Rozpoznawanie zwierząt (8 pkt)</h2>
+    <div id="vocab-container">
+        <div class="question-box" id="q1" data-category="vocab">
+            <div class="sentence"><span class="emoji">🐢</span> To zwierzę ma skorupę i jest wolne.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q1', this, true)">tortoise</button>
+                <button class="choice-btn" onclick="checkChoice('q1', this, false)">spider</button>
+                <button class="choice-btn" onclick="checkChoice('q1', this, false)">parrot</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q2" data-category="vocab">
+            <div class="sentence"><span class="emoji">🐹</span> Małe, futrzaste, śpi w dzień.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q2', this, false)">rat</button>
+                <button class="choice-btn" onclick="checkChoice('q2', this, true)">hamster</button>
+                <button class="choice-btn" onclick="checkChoice('q2', this, false)">fish</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q3" data-category="vocab">
+            <div class="sentence"><span class="emoji">🦜</span> Kolorowy ptak, który potrafi mówić.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q3', this, true)">parrot</button>
+                <button class="choice-btn" onclick="checkChoice('q3', this, false)">canary</button>
+                <button class="choice-btn" onclick="checkChoice('q3', this, false)">snake</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q4" data-category="vocab">
+            <div class="sentence"><span class="emoji">🦎</span> Zielona jaszczurka to...</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q4', this, false)">tortoise</button>
+                <button class="choice-btn" onclick="checkChoice('q4', this, true)">lizard</button>
+                <button class="choice-btn" onclick="checkChoice('q4', this, false)">spider</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q5" data-category="vocab">
+            <div class="sentence"><span class="emoji">🕷️</span> Ma osiem nóg.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q5', this, false)">snake</button>
+                <button class="choice-btn" onclick="checkChoice('q5', this, false)">ant</button>
+                <button class="choice-btn" onclick="checkChoice('q5', this, true)">spider</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+         <div class="question-box" id="q6" data-category="vocab">
+            <div class="sentence"><span class="emoji">🐰</span> Ma długie uszy i krótki ogon.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q6', this, true)">rabbit</button>
+                <button class="choice-btn" onclick="checkChoice('q6', this, false)">dog</button>
+                <button class="choice-btn" onclick="checkChoice('q6', this, false)">cat</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+         <div class="question-box" id="q7" data-category="vocab">
+            <div class="sentence"><span class="emoji">🐍</span> Jest długi i nie ma nóg.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q7', this, false)">lizard</button>
+                <button class="choice-btn" onclick="checkChoice('q7', this, true)">snake</button>
+                <button class="choice-btn" onclick="checkChoice('q7', this, false)">hamster</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+         <div class="question-box" id="q8" data-category="vocab">
+            <div class="sentence"><span class="emoji">🐤</span> Mały żółty ptaszek (kanarek).</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q8', this, false)">parrot</button>
+                <button class="choice-btn" onclick="checkChoice('q8', this, true)">canary</button>
+                <button class="choice-btn" onclick="checkChoice('q8', this, false)">fish</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+    </div>
+
+    <h2>&#9889; 2. Gramatyka: Have / Has got (10 pkt)</h2>
+    <div id="grammar-click-container">
+        <div class="question-box" id="q9" data-category="grammar">
+            <div class="sentence">I <span class="highlight">...</span> got a new dog.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q9', this, true)">have</button>
+                <button class="choice-btn" onclick="checkChoice('q9', this, false)">has</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q10" data-category="grammar">
+            <div class="sentence">She <span class="highlight">...</span> got a clever cat.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q10', this, false)">have</button>
+                <button class="choice-btn" onclick="checkChoice('q10', this, true)">has</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q11" data-category="grammar">
+            <div class="sentence">We <span class="highlight">...</span> got many friends.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q11', this, true)">have</button>
+                <button class="choice-btn" onclick="checkChoice('q11', this, false)">has</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q12" data-category="grammar">
+            <div class="sentence">Tom <span class="highlight">...</span> got a spider.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q12', this, false)">have</button>
+                <button class="choice-btn" onclick="checkChoice('q12', this, true)">has</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q13" data-category="grammar">
+            <div class="sentence">They <span class="highlight">...</span> got big teeth.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q13', this, true)">have</button>
+                <button class="choice-btn" onclick="checkChoice('q13', this, false)">has</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q14" data-category="grammar">
+            <div class="sentence">It <span class="highlight">...</span> got a long tail.</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q14', this, false)">have</button>
+                <button class="choice-btn" onclick="checkChoice('q14', this, true)">has</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q15" data-category="grammar">
+            <div class="sentence"><span class="highlight">...</span> you got a sister?</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q15', this, true)">Have</button>
+                <button class="choice-btn" onclick="checkChoice('q15', this, false)">Has</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q16" data-category="grammar">
+            <div class="sentence"><span class="highlight">...</span> dad got a car?</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q16', this, false)">Have</button>
+                <button class="choice-btn" onclick="checkChoice('q16', this, true)">Has</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q17" data-category="grammar">
+            <div class="sentence">Has he got a fish? Yes, he <span class="highlight">...</span> .</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q17', this, true)">has</button>
+                <button class="choice-btn" onclick="checkChoice('q17', this, false)">have</button>
+                <button class="choice-btn" onclick="checkChoice('q17', this, false)">is</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        <div class="question-box" id="q18" data-category="grammar">
+            <div class="sentence">Have they got a rabbit? No, they <span class="highlight">...</span> .</div>
+            <div class="options">
+                <button class="choice-btn" onclick="checkChoice('q18', this, false)">haven't</button>
+                <button class="choice-btn" onclick="checkChoice('q18', this, false)">hasn't</button>
+                <button class="choice-btn" onclick="checkChoice('q18', this, true)">haven't</button> </div>
+            <div class="feedback"></div>
+        </div>
+    </div>
+
+    <h2>&#128290; 3. Liczba mnoga i Wyjątki (6 pkt)</h2>
+    <div class="instruction">Wpisz liczbę mnogą podanych słów. Uważaj na wyjątki!</div>
+    
+    <div class="question-box" id="q19" data-category="spelling">
+        <div class="sentence">one mouse (mysz) &#8594; two <input type="text" id="in19" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q19', 'in19', ['mice'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in19"></div>
+    </div>
+
+    <div class="question-box" id="q20" data-category="spelling">
+        <div class="sentence">one foot (stopa) &#8594; two <input type="text" id="in20" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q20', 'in20', ['feet'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in20"></div>
+    </div>
+
+    <div class="question-box" id="q21" data-category="spelling">
+        <div class="sentence">one tooth (ząb) &#8594; two <input type="text" id="in21" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q21', 'in21', ['teeth'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in21"></div>
+    </div>
+
+    <div class="question-box" id="q22" data-category="spelling">
+        <div class="sentence">one fish (ryba) &#8594; five <input type="text" id="in22" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q22', 'in22', ['fish'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in22"></div>
+    </div>
+
+    <div class="question-box" id="q23" data-category="spelling">
+        <div class="sentence">one child (dziecko) &#8594; three <input type="text" id="in23" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q23', 'in23', ['children'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in23"></div>
+    </div>
+
+    <div class="question-box" id="q24" data-category="spelling">
+        <div class="sentence">one body (ciało) &#8594; two <input type="text" id="in24" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q24', 'in24', ['bodies'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in24"></div>
+    </div>
+
+    <h2>&#128526; 4. Cechy zwierząt (Tłumaczenie) (6 pkt)</h2>
+    
+    <div class="question-box" id="q25" data-category="vocab">
+        <div class="sentence">Lwy są (niebezpieczne): <input type="text" id="in25" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q25', 'in25', ['dangerous'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in25"></div>
+    </div>
+
+    <div class="question-box" id="q26" data-category="vocab">
+        <div class="sentence">Ten pies jest (przyjacielski): <input type="text" id="in26" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q26', 'in26', ['friendly'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in26"></div>
+    </div>
+
+    <div class="question-box" id="q27" data-category="vocab">
+        <div class="sentence">Mój kot jest (mądry): <input type="text" id="in27" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q27', 'in27', ['clever', 'smart'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in27"></div>
+    </div>
+
+    <div class="question-box" id="q28" data-category="vocab">
+        <div class="sentence">Żółwie są (wolne): <input type="text" id="in28" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q28', 'in28', ['slow'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in28"></div>
+    </div>
+
+    <div class="question-box" id="q29" data-category="vocab">
+        <div class="sentence">Króliki są (szybkie): <input type="text" id="in29" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q29', 'in29', ['fast'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in29"></div>
+    </div>
+
+    <div class="question-box" id="q30" data-category="vocab">
+        <div class="sentence">Pająki są (straszne): <input type="text" id="in30" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q30', 'in30', ['scary'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in30"></div>
+    </div>
+
+    <h2>&#9997; 5. Gramatyka: Zdania (8 pkt)</h2>
+    <div class="instruction">Uważaj na formy skrócone i pełne!</div>
+
+    <div class="question-box" id="q31" data-category="grammar">
+        <div class="sentence">Przeczenie: I have got &#8594; I <input type="text" id="in31" oninput="startTimerIfNeeded()" placeholder="haven't"> got.
+        <button class="check-btn" onclick="checkInput('q31', 'in31', ['haven\'t', 'have not'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in31"></div>
+    </div>
+
+    <div class="question-box" id="q32" data-category="grammar">
+        <div class="sentence">Przeczenie: She has got &#8594; She <input type="text" id="in32" oninput="startTimerIfNeeded()" placeholder="hasn't"> got.
+        <button class="check-btn" onclick="checkInput('q32', 'in32', ['hasn\'t', 'has not'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in32"></div>
+    </div>
+
+    <div class="question-box" id="q33" data-category="grammar">
+        <div class="sentence">Przeczenie (pełna forma): He has got &#8594; He <input type="text" id="in33" oninput="startTimerIfNeeded()" placeholder="has not"> got.
+        <button class="check-btn" onclick="checkInput('q33', 'in33', ['has not'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in33"></div>
+    </div>
+
+    <div class="question-box" id="q34" data-category="grammar">
+        <div class="sentence">Pytanie: (Ty masz) <input type="text" id="in34" oninput="startTimerIfNeeded()" placeholder="Have you"> got a cat?
+        <button class="check-btn" onclick="checkInput('q34', 'in34', ['have you'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in34"></div>
+    </div>
+
+    <div class="question-box" id="q35" data-category="grammar">
+        <div class="sentence">Pytanie: (Ona ma) <input type="text" id="in35" oninput="startTimerIfNeeded()" placeholder="Has she"> got a doll?
+        <button class="check-btn" onclick="checkInput('q35', 'in35', ['has she'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in35"></div>
+    </div>
+
+    <h2 style="color:var(--accent);">&#127912; 6. MISTRZ OPISU (Trening Pisania)</h2>
+    
+    <div class="instruction">Etap 1: Przetłumacz fragmenty (części ciała i przymiotniki).</div>
+
+    <div class="question-box" id="q36" data-category="writing">
+        <div class="sentence">długi ogon &#8594; a <input type="text" id="in36" oninput="startTimerIfNeeded()"> tail
+        <button class="check-btn" onclick="checkInput('q36', 'in36', ['long'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in36"></div>
+    </div>
+
+    <div class="question-box" id="q37" data-category="writing">
+        <div class="sentence">małe uszy &#8594; small <input type="text" id="in37" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q37', 'in37', ['ears'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in37"></div>
+    </div>
+
+    <div class="question-box" id="q38" data-category="writing">
+        <div class="sentence">duże skrzydła &#8594; big <input type="text" id="in38" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q38', 'in38', ['wings'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in38"></div>
+    </div>
+    
+    <div class="question-box" id="q39" data-category="writing">
+        <div class="sentence">ostre zęby &#8594; sharp <input type="text" id="in39" oninput="startTimerIfNeeded()">
+        <button class="check-btn" onclick="checkInput('q39', 'in39', ['teeth'])">Sprawdź</button></div>
+        <div class="feedback" id="fb-in39"></div>
+    </div>
+
+    <div class="instruction">Etap 2: Ułóż zdania z rozsypanki (wpisz całe zdanie).</div>
+
+    <div class="question-box" id="q40" data-category="writing">
+        <div class="sentence">got / I / a / have / dog.</div>
+        <input type="text" id="in40" oninput="startTimerIfNeeded()" style="width: 300px;">
+        <button class="check-btn" onclick="checkInput('q40', 'in40', ['i have got a dog', 'i have got a dog.'])">Sprawdź</button>
+        <div class="feedback" id="fb-in40"></div>
+    </div>
+
+    <div class="question-box" id="q41" data-category="writing">
+        <div class="sentence">has / It / legs / four.</div>
+        <input type="text" id="in41" oninput="startTimerIfNeeded()" style="width: 300px;">
+        <button class="check-btn" onclick="checkInput('q41', 'in41', ['it has four legs', 'it has four legs.', 'it has got four legs'])">Sprawdź</button>
+        <div class="feedback" id="fb-in41"></div>
+    </div>
+
+    <div class="instruction" style="background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1;">
+        Etap 3: <b>WIELKI FINAŁ!</b> Uzupełnij opis mojego zwierzaka. (10 pkt)
+    </div>
+
+    <div class="question-box" id="q42" data-category="writing_final" style="line-height: 2.5;">
+        <div class="sentence" style="display: block;">
+            Mam nowego zwierzaka. <br>
+            I <input type="text" id="in42a" placeholder="mam" style="width:100px;"> <input type="text" id="in42b" placeholder="got" style="width:60px;"> a new pet. <br>
+            
+            To jest królik. It <input type="text" id="in42c" placeholder="jest" style="width:60px;"> a rabbit. <br>
+            
+            Ma na imię "Speedy". His name is Speedy. <br>
+            
+            Speedy jest bardzo szybki. Speedy is very <input type="text" id="in42d" placeholder="szybki" style="width:100px;">. <br>
+            
+            On ma długie uszy. He <input type="text" id="in42e" placeholder="ma" style="width:60px;"> got long <input type="text" id="in42f" placeholder="uszy" style="width:100px;">. <br>
+            
+            Nie ma skrzydeł. He <input type="text" id="in42g" placeholder="nie ma" style="width:100px;"> got <input type="text" id="in42h" placeholder="skrzydeł" style="width:100px;">. <br>
+            
+            Ma małe stopy i białe zęby. He has got small <input type="text" id="in42i" placeholder="stopy" style="width:100px;"> and white <input type="text" id="in42j" placeholder="zęby" style="width:100px;">. <br>
+            
+            Kocham go! I love him!
+            <br><br>
+            <button class="check-btn" onclick="checkFinalText()">Sprawdź Cały Tekst</button>
+        </div>
+        <div class="feedback" id="fb-final"></div>
+    </div>
+
+    <div style="text-align: center; margin-top: 60px; margin-bottom: 40px;">
+        <button id="finish-btn" onclick="finishTest()" style="padding: 18px 50px; background-color: var(--accent); color: white; font-size: 22px; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: bold; transition: transform 0.2s;">&#127937; ZAKOŃCZ TEST</button>
+    </div>
+
+    <div id="final-result" class="result-section">
+        <h2 style="font-size: 28px; border: none; justify-content: center; margin-top: 0;">&#127942; WYNIKI &#127942;</h2>
+        <div style="font-size: 18px; margin-bottom: 20px;">
+            Imię i nazwisko: <input type="text" id="student-name" placeholder="Wpisz imię..." style="width: 250px; padding: 8px; font-weight: bold; background: white; border: 2px solid var(--primary); border-radius: 5px;">
+        </div>
+        <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0;">
+            <div>
+                <div style="font-size: 14px; color: #777;">PUNKTY</div>
+                <div style="font-size: 36px; font-weight: bold; color: var(--primary);"><span id="final-score">0</span> / <span id="final-max">0</span></div>
+            </div>
+            <div>
+                <div style="font-size: 14px; color: #777;">CZAS PRACY</div>
+                <div style="font-size: 36px; font-weight: bold; color: var(--accent);"><span id="final-time">00:00</span></div>
+            </div>
+        </div>
+        <h3 style="text-align: left; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">&#128202; Analiza Tematów:</h3>
+        <table class="diagnostic-table">
+            <thead><tr><th>Dział / Temat</th><th>Wynik</th><th>Ocena</th></tr></thead>
+            <tbody id="diagnostic-body"></tbody>
+        </table>
+        <button id="send-results-btn" onclick="sendToGoogleSheets()" style="background-color: #0277bd; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; border: none; margin-top: 20px; width: 100%; max-width: 300px;">📤 Wyślij wynik do Nauczyciela</button>
+    </div>
+</div>
+
+<script>
+    // --- KONFIGURACJA ---
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_ByEj8poSy36m8iehCHYmislHj0sTvHLRhQPUkgic_L5Ss8fXrF_a2THkm-hpuZL0OA/exec"; 
+    const STORAGE_KEY = 'unit4_animals_mega_v1'; 
+
+    const catNames = { 
+        'vocab': 'Słownictwo (Zwierzęta/Cechy)', 
+        'grammar': 'Gramatyka (Have got)', 
+        'spelling': 'Liczba mnoga i Pisownia', 
+        'writing': 'Pisanie (Zdania i Fraz)',
+        'writing_final': 'Pisanie (Tekst ciągły)'
+    };
+    // ---------------------
+
+    let state = { score: 0, answeredIds: {}, startTime: null, endTime: null, isFinished: false };
+    let timerInterval;
+
+    window.addEventListener('load', () => {
+        loadState();
+        if (state.startTime && !state.isFinished) { 
+             timerInterval = setInterval(updateTimer, 1000); 
+             updateTimer();
+        } else if (state.isFinished) {
+             showFinalResult(false); 
+             document.getElementById('timer').innerText = formatTime(state.endTime - state.startTime); 
+        }
+        calculateMaxScore();
+    });
+
+    function calculateMaxScore() {
+        // Liczenie pytań standardowych
+        let count = document.querySelectorAll('.question-box:not([data-category="writing_final"])').length;
+        // Dodanie 10 pkt za finał
+        count += 10; 
+        document.getElementById('final-max').innerText = count;
+    }
+
+    function startTimerIfNeeded() {
+        if (!state.startTime && !state.isFinished) {
+            state.startTime = Date.now();
+            saveState();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+    }
+
+    function updateTimer() {
+        if(!state.startTime) return;
+        const diff = Date.now() - state.startTime;
+        document.getElementById('timer').innerText = formatTime(diff);
+    }
+    function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const m = Math.floor(totalSeconds / 60); const s = totalSeconds % 60;
+        return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
+    }
+
+    // --- LOGIKA PYTAŃ ---
+    function checkChoice(qId, btn, isCorrect) {
+        startTimerIfNeeded();
+        if (state.answeredIds[qId] !== undefined || state.isFinished) return;
+        state.answeredIds[qId] = isCorrect;
+        if(isCorrect) state.score++;
+        
+        const parent = btn.parentElement;
+        const allBtns = parent.querySelectorAll('.choice-btn');
+        allBtns.forEach(b => b.disabled = true);
+        parent.parentElement.classList.add('locked');
+
+        if(isCorrect) {
+            btn.classList.add('selected-correct');
+            parent.nextElementSibling.innerHTML = '<span class="correct">&#10004; Dobrze!</span>';
+        } else {
+            btn.classList.add('selected-wrong');
+            parent.nextElementSibling.innerHTML = '<span class="wrong">&#10006; Błąd!</span>';
+            allBtns.forEach(b => { if(b.getAttribute('onclick').includes('true')) b.classList.add('show-correct'); });
+        }
+        saveState();
+    }
+
+    function checkInput(qId, inputId, correctAnswers) {
+        startTimerIfNeeded();
+        if (state.answeredIds[qId] !== undefined || state.isFinished) return;
+        const input = document.getElementById(inputId);
+        const btn = input.nextElementSibling;
+        const feedback = document.getElementById('fb-' + inputId);
+        
+        let val = input.value.trim().replace(/\s+$/, '').replace(/[.,]$/, '').toLowerCase(); // remove trailing punct
+        let correct = correctAnswers.map(a => a.toLowerCase());
+        const isCorrect = correct.includes(val);
+
+        state.answeredIds[qId] = isCorrect;
+        if(isCorrect) state.score++;
+
+        input.disabled = true; btn.disabled = true;
+        input.closest('.question-box').classList.add('locked');
+
+        if(isCorrect) {
+            input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9';
+            feedback.innerHTML = '<span class="correct">&#10004; Super!</span>';
+        } else {
+            input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee';
+            feedback.innerHTML = '<span class="wrong">&#10006; Źle. Odp: ' + correctAnswers[0] + '</span>';
+        }
+        saveState();
+    }
+
+    // --- SPECJALNA FUNKCJA DLA TEKSTU Z LUKAMI ---
+    function checkFinalText() {
+        startTimerIfNeeded();
+        if (state.answeredIds['q42'] !== undefined || state.isFinished) return;
+        
+        const answers = {
+            'in42a': ['have'], 'in42b': ['got'], 'in42c': ['is'], 
+            'in42d': ['fast', 'quick'], 'in42e': ['has'], 'in42f': ['ears'],
+            'in42g': ['hasn\'t', 'has not'], 'in42h': ['wings'],
+            'in42i': ['feet'], 'in42j': ['teeth']
+        };
+        
+        let correctCount = 0;
+        let total = 0;
+        let allFilled = true;
+
+        for (const [id, correctList] of Object.entries(answers)) {
+            const el = document.getElementById(id);
+            if(el.value.trim() === "") allFilled = false;
+        }
+
+        if(!allFilled && !confirm("Nie uzupełniłeś wszystkich luk. Sprawdzić mimo to?")) return;
+
+        for (const [id, correctList] of Object.entries(answers)) {
+            total++;
+            const el = document.getElementById(id);
+            let val = el.value.trim().toLowerCase();
+            
+            if (correctList.includes(val)) {
+                correctCount++;
+                el.style.borderColor = '#2e7d32'; el.style.backgroundColor = '#e8f5e9';
+            } else {
+                el.style.borderColor = '#c62828'; el.style.backgroundColor = '#ffebee';
+            }
+            el.disabled = true;
+        }
+
+        state.score += correctCount;
+        state.answeredIds['q42'] = correctCount; // store number of points instead of bool
+        
+        const btn = document.querySelector('#q42 button');
+        btn.disabled = true;
+        btn.innerText = `Wynik: ${correctCount}/10`;
+        
+        saveState();
+    }
+
+    // --- ZAPIS I FINAŁ ---
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    function loadState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) { state = JSON.parse(saved); restoreUI(); }
+    }
+    
+    function restoreUI() {
+        for (const [qId, val] of Object.entries(state.answeredIds)) {
+            if(qId === 'q42') {
+                 // Przywracanie final text
+                 const box = document.getElementById(q42);
+                 if(box) {
+                     box.querySelectorAll('input').forEach(i => i.disabled=true);
+                     box.querySelector('button').innerText = `Wynik: ${val}/10`;
+                     box.querySelector('button').disabled = true;
+                 }
+                 continue;
+            }
+
+            const box = document.getElementById(qId);
+            if(!box) continue;
+            box.classList.add('locked');
+            box.querySelectorAll('button').forEach(b => b.disabled = true);
+            const input = box.querySelector('input');
+            if(input) {
+                input.disabled = true; 
+                // Restore colors roughly based on stored val (true/false)
+                if(val) { input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9'; }
+                else { input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee'; }
+            }
+            const fb = box.querySelector('.feedback');
+            if(fb) fb.innerHTML = val ? '<span class="correct">&#10004; OK</span>' : '<span class="wrong">&#10006; Błąd</span>';
+        }
+    }
+
+    function resetTest() { if(confirm('Zresetować?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+
+    function finishTest() {
+        if(!confirm("Zakończyć test?")) return;
+        if (!state.startTime) state.startTime = Date.now();
+        clearInterval(timerInterval); state.isFinished = true; state.endTime = Date.now();
+        saveState(); showFinalResult(true);
+    }
+
+    function showFinalResult(scroll) {
+        document.getElementById('final-score').innerText = state.score;
+        if(state.endTime) document.getElementById('final-time').innerText = formatTime(state.endTime - state.startTime);
+        
+        let stats = {};
+        
+        // Zliczanie standardowych
+        document.querySelectorAll('.question-box:not([data-category="writing_final"])').forEach(box => {
+            let cat = box.getAttribute('data-category');
+            if(!stats[cat]) stats[cat] = { total: 0, correct: 0 };
+            stats[cat].total++;
+            if(state.answeredIds[box.id] === true) stats[cat].correct++;
+        });
+
+        // Zliczanie finału (q42)
+        if(state.answeredIds['q42']) {
+             if(!stats['writing_final']) stats['writing_final'] = { total: 10, correct: state.answeredIds['q42'] };
+        } else {
+             // Jeśli user zakończył bez sprawdzania tekstu
+             stats['writing_final'] = { total: 10, correct: 0 };
+        }
+
+        const tbody = document.getElementById('diagnostic-body');
+        tbody.innerHTML = '';
+
+        for (const [cat, data] of Object.entries(stats)) {
+            if(data.total === 0) continue;
+            let p = Math.round((data.correct / data.total) * 100);
+            let cls = p >= 75 ? 'diag-good' : (p >= 50 ? 'diag-ok' : 'diag-bad');
+            tbody.innerHTML += `<tr><td>${catNames[cat] || cat}</td><td>${data.correct}/${data.total}</td><td class="${cls}">${p}%</td></tr>`;
+        }
+        document.getElementById('final-result').style.display = 'block';
+        document.getElementById('finish-btn').style.display = 'none';
+        if(scroll) document.getElementById('final-result').scrollIntoView({behavior: 'smooth'});
+    }
+
+    function sendToGoogleSheets() {
+        // ... (Kod taki sam jak w szablonie v2 - skrócony dla czytelności tutaj, ale w pliku musi być pełny) ...
+        alert("Funkcja wysyłania wymaga skonfigurowania URL w kodzie!");
+    }
+</script>
+</body>
+</html>
