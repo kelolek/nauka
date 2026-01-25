@@ -723,7 +723,38 @@
     }
 
     function sendToGoogleSheets() {
-        alert("Pamiętaj o konfiguracji linku w kodzie!");
+        const btn = document.getElementById('send-results-btn');
+        const nameInput = document.getElementById('student-name');
+        const studentName = nameInput.value.trim();
+
+        if(studentName.length < 3) { alert("Wpisz imię i nazwisko!"); nameInput.focus(); return; }
+        
+        // Sprawdzenie czy link został podmieniony
+        if(GOOGLE_SCRIPT_URL.includes("WKLEJ") || GOOGLE_SCRIPT_URL === "") { 
+            alert("Błąd konfiguracji: Brak poprawnego linku do Google Apps Script!"); 
+            return; 
+        }
+
+        btn.disabled = true; btn.innerText = "⏳ Wysyłanie...";
+
+        const dataToSend = {
+            uczen: studentName,
+            temat: document.getElementById('test-title').innerText + " - " + document.getElementById('test-subtitle').innerText,
+            wynik: state.score + " / " + document.getElementById('final-max').innerText,
+            czas: document.getElementById('final-time').innerText,
+            diagnoza: Array.from(document.querySelectorAll('#diagnostic-body tr')).map(r => r.cells[0].innerText + " (" + r.cells[2].innerText + ")").join(", ")
+        };
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST", mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dataToSend)
+        }).then(() => {
+            btn.innerText = "✅ Wynik wysłany!"; btn.style.backgroundColor = "#2e7d32";
+            alert("Sukces! Wynik został wysłany do nauczyciela.");
+        }).catch(err => {
+            console.error(err); btn.innerText = "❌ Błąd"; alert("Wystąpił błąd wysyłania. Sprawdź połączenie z internetem.");
+        });
     }
 </script>
 </body>
