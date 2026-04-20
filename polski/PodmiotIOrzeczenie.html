@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podmiot i Orzeczenie - Karta Pracy</title>
+    <style>
+        /* --- STYLE UNIWERSALNE (v2) - ZGODNE Z MASTER_TEST --- */
+        :root {
+            --primary: #0277bd;      
+            --primary-light: #e1f5fe; 
+            --accent: #ff6f00;       
+            --success: #2e7d32;      
+            --error: #c62828;        
+            --bg-grid: #f5f5f5;      
+            --text-main: #263238;
+        }
+        body {
+            font-family: 'Segoe UI', 'Verdana', sans-serif; background-color: var(--bg-grid);
+            background-image: linear-gradient(#cfd8dc 1px, transparent 1px), linear-gradient(90deg, #cfd8dc 1px, transparent 1px);
+            background-size: 20px 20px; color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center;
+        }
+        .container {
+            background-color: #ffffff; width: 100%; max-width: 900px; padding: 40px; border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 12px solid var(--primary); position: relative;
+        }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 5px; font-size: 32px; letter-spacing: 1px; }
+        h2 { color: var(--primary); border-bottom: 2px solid #b3e5fc; padding-bottom: 10px; margin-top: 50px; }
+        .instruction { background-color: var(--primary-light); padding: 15px; border-radius: 8px; color: #01579b; font-weight: 600; margin-bottom: 25px; border-left: 5px solid var(--primary); }
+        
+        #timer-box {
+            position: fixed; top: 20px; right: 20px; background: #263238; color: #00e676;
+            font-family: 'Consolas', monospace; font-size: 24px; padding: 10px 20px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; border: 2px solid #fff;
+        }
+
+        .question-box { background-color: #fff; border: 2px solid #eceff1; border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: all 0.3s; }
+        .question-box:hover { border-color: #b3e5fc; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .question-box.locked { background-color: #fafafa; border-color: #e0e0e0; opacity: 0.9; pointer-events: none; }
+        .sentence { font-size: 20px; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
+        
+        .options { display: flex; gap: 10px; flex-wrap: wrap; }
+        button.choice-btn {
+            padding: 12px 20px; font-size: 18px; cursor: pointer; background-color: white;
+            border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; transition: 0.2s; flex: 1 1 auto; max-width: 250px; font-weight: bold;
+        }
+        button.choice-btn:hover:not(:disabled) { background-color: var(--primary-light); transform: translateY(-2px); }
+        button.choice-btn:disabled { cursor: not-allowed; border-color: #ccc; color: #999; background-color: #f5f5f5; }
+        button.choice-btn.selected-wrong { background-color: #ffcdd2 !important; border-color: #c62828 !important; color: #c62828 !important; }
+        button.choice-btn.selected-correct { background-color: #c8e6c9 !important; border-color: #2e7d32 !important; color: #2e7d32 !important; }
+        button.choice-btn.show-correct { background-color: #fff !important; border-color: #2e7d32 !important; color: #2e7d32 !important; box-shadow: 0 0 10px #c8e6c9; }
+
+        input[type="text"] { padding: 8px 12px; font-size: 20px; border: 2px solid #b0bec5; border-radius: 8px; width: 200px; text-align: center; color: #333; font-weight: bold; background-color: #fff; }
+        .check-btn { background-color: var(--primary); color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px; }
+        .check-btn:hover:not(:disabled) { background-color: #01579b; }
+        .check-btn:disabled { background-color: #b0bec5; cursor: default; }
+
+        .feedback { margin-top: 12px; font-weight: bold; font-size: 16px; min-height: 24px; }
+        .correct { color: var(--success); } .wrong { color: var(--error); }
+        .result-section { display: none; margin-top: 40px; padding: 30px; background-color: #fff; border: 4px solid var(--primary); border-radius: 15px; text-align: center; }
+        .diagnostic-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .diagnostic-table th, .diagnostic-table td { border: 1px solid #cfd8dc; padding: 12px; text-align: left; }
+        .diagnostic-table th { background-color: var(--primary); color: white; }
+        .diag-bad { color: var(--error); font-weight: bold; } .diag-ok { color: #f57c00; font-weight: bold; } .diag-good { color: var(--success); font-weight: bold; }
+
+        @media print {
+            #timer-box, #reset-btn, #finish-btn, #send-results-btn { display: none !important; }
+            .result-section { display: block !important; border: 2px solid black; }
+            body { background: white; } .container { box-shadow: none; border: none; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="timer-box">&#9201; <span id="timer">00:00</span></div>
+<button id="reset-btn" onclick="resetTest()" style="position:fixed; top:70px; right:20px; background:#ef5350; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; z-index:999;">Resetuj</button>
+
+<div class="container">
+    <h1 id="test-title">Podmiot i Orzeczenie</h1>
+    <p id="test-subtitle" style="text-align: center; color: #546e7a;">Składnia zdania pojedynczego - Klasy 4-6</p>
+    
+    <div style="text-align: center; background: #fff3e0; padding: 10px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #ffe0b2; color: #e65100;">
+        <strong>&#9888; Start:</strong> Czas zacznie się liczyć automatycznie po rozpoczęciu rozwiązywania zadań.
+    </div>
+
+    <div class="instruction">Część 1 i 2 (20 pkt) - Zadania wyboru. Wskaż poprawną odpowiedź.</div>
+
+    <h2>1. Teoria i Identyfikacja</h2>
+    <div id="questions-container">
+        
+        <div class="question-box" id="q1" data-category="theory"><div class="sentence">Na jakie pytania odpowiada podmiot?</div><div class="options"><button class="choice-btn" onclick="checkChoice('q1', this, false)">co robi?</button><button class="choice-btn" onclick="checkChoice('q1', this, true)">kto? co?</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q2" data-category="theory"><div class="sentence">Orzeczenie informuje nas o tym...</div><div class="options"><button class="choice-btn" onclick="checkChoice('q2', this, true)">co ktoś robi / co się z kimś dzieje</button><button class="choice-btn" onclick="checkChoice('q2', this, false)">jaki ktoś jest</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q3" data-category="theory"><div class="sentence">Podmiot to zazwyczaj w zdaniu...</div><div class="options"><button class="choice-btn" onclick="checkChoice('q3', this, true)">wykonawca czynności</button><button class="choice-btn" onclick="checkChoice('q3', this, false)">okoliczność czasu</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q4" data-category="theory"><div class="sentence">Jaką częścią mowy najczęściej jest orzeczenie?</div><div class="options"><button class="choice-btn" onclick="checkChoice('q4', this, true)">czasownikiem</button><button class="choice-btn" onclick="checkChoice('q4', this, false)">rzeczownikiem</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q5" data-category="theory"><div class="sentence">Jaką częścią mowy najczęściej jest podmiot?</div><div class="options"><button class="choice-btn" onclick="checkChoice('q5', this, false)">czasownikiem</button><button class="choice-btn" onclick="checkChoice('q5', this, true)">rzeczownikiem</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q6" data-category="theory"><div class="sentence">"Mama gotuje." Słowo MAMA to:</div><div class="options"><button class="choice-btn" onclick="checkChoice('q6', this, true)">podmiot</button><button class="choice-btn" onclick="checkChoice('q6', this, false)">orzeczenie</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q7" data-category="theory"><div class="sentence">"Pies szczeka." Słowo SZCZEKA to:</div><div class="options"><button class="choice-btn" onclick="checkChoice('q7', this, false)">podmiot</button><button class="choice-btn" onclick="checkChoice('q7', this, true)">orzeczenie</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q8" data-category="theory"><div class="sentence">O co zapytasz szukając orzeczenia w zdaniu "Słońce świeci"?</div><div class="options"><button class="choice-btn" onclick="checkChoice('q8', this, true)">co robi?</button><button class="choice-btn" onclick="checkChoice('q8', this, false)">co?</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q9" data-category="theory"><div class="sentence">Czy słowo odpowiadające na pytanie "co się z nim dzieje?" to orzeczenie?</div><div class="options"><button class="choice-btn" onclick="checkChoice('q9', this, true)">tak</button><button class="choice-btn" onclick="checkChoice('q9', this, false)">nie</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q10" data-category="theory"><div class="sentence">"Uczeń słucha." Kto jest wykonawcą czynności?</div><div class="options"><button class="choice-btn" onclick="checkChoice('q10', this, true)">uczeń (podmiot)</button><button class="choice-btn" onclick="checkChoice('q10', this, false)">słucha (orzeczenie)</button></div><div class="feedback"></div></div>
+
+    <h2>2. Słownictwo w Składni</h2>
+        <div class="question-box" id="q11" data-category="vocab"><div class="sentence">Który podmiot pasuje: "_______ pomagają zwierzętom."</div><div class="options"><button class="choice-btn" onclick="checkChoice('q11', this, true)">wolontariusze</button><button class="choice-btn" onclick="checkChoice('q11', this, false)">uczeń</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q12" data-category="vocab"><div class="sentence">Który podmiot pasuje: "_______ przygotowali śniadanie."</div><div class="options"><button class="choice-btn" onclick="checkChoice('q12', this, false)">dziewczynka</button><button class="choice-btn" onclick="checkChoice('q12', this, true)">rodzice</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q13" data-category="vocab"><div class="sentence">Który podmiot pasuje: "_______ piszą sprawdzian."</div><div class="options"><button class="choice-btn" onclick="checkChoice('q13', this, true)">uczniowie</button><button class="choice-btn" onclick="checkChoice('q13', this, false)">chłopiec</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q14" data-category="vocab"><div class="sentence">Które orzeczenie pasuje: "Dziewczynka _______ piosenkę."</div><div class="options"><button class="choice-btn" onclick="checkChoice('q14', this, true)">śpiewa</button><button class="choice-btn" onclick="checkChoice('q14', this, false)">skacze</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q15" data-category="vocab"><div class="sentence">Które orzeczenie pasuje: "Mały chłopiec _______ gola."</div><div class="options"><button class="choice-btn" onclick="checkChoice('q15', this, false)">idzie</button><button class="choice-btn" onclick="checkChoice('q15', this, true)">strzela</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q16" data-category="vocab"><div class="sentence">Kto wykonuje czynność w zdaniu: "Wolontariusze zbierają karmę."</div><div class="options"><button class="choice-btn" onclick="checkChoice('q16', this, true)">wolontariusze</button><button class="choice-btn" onclick="checkChoice('q16', this, false)">karmę</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q17" data-category="vocab"><div class="sentence">O co zapytasz wyraz "zbierają" z poprzedniego zadania?</div><div class="options"><button class="choice-btn" onclick="checkChoice('q17', this, false)">co?</button><button class="choice-btn" onclick="checkChoice('q17', this, true)">co robią?</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q18" data-category="vocab"><div class="sentence">"Rodzice idą na spacer". Słowo RODZICE to:</div><div class="options"><button class="choice-btn" onclick="checkChoice('q18', this, true)">podmiot</button><button class="choice-btn" onclick="checkChoice('q18', this, false)">orzeczenie</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q19" data-category="vocab"><div class="sentence">Z podanych słów wybierz CZASOWNIK (orzeczenie):</div><div class="options"><button class="choice-btn" onclick="checkChoice('q19', this, false)">dziewczynka</button><button class="choice-btn" onclick="checkChoice('q19', this, true)">rysuje</button></div><div class="feedback"></div></div>
+        <div class="question-box" id="q20" data-category="vocab"><div class="sentence">Z podanych słów wybierz RZECZOWNIK (podmiot):</div><div class="options"><button class="choice-btn" onclick="checkChoice('q20', this, true)">chłopiec</button><button class="choice-btn" onclick="checkChoice('q20', this, false)">prosi</button></div><div class="feedback"></div></div>
+
+    <div class="instruction" style="margin-top: 40px;">Część 3 i 4 (30 pkt) - Zadania otwarte. Wpisuj odpowiedzi dokładnie (uwzględnij polskie znaki).</div>
+
+    <h2>3. Konstruowanie Pytań</h2>
+        <div class="question-box" id="q21" data-category="mechanics"><div class="sentence">Tata odpoczywa. O wyraz "Tata" zapytasz: <input type="text" id="in21" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q21', 'in21', ['kto', 'kto?'])">Sprawdź</button></div><div class="feedback" id="fb-in21"></div></div>
+        <div class="question-box" id="q22" data-category="mechanics"><div class="sentence">Tata odpoczywa. O wyraz "odpoczywa" zapytasz: <input type="text" id="in22" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q22', 'in22', ['corobi', 'corobi?'])">Sprawdź</button></div><div class="feedback" id="fb-in22"></div></div>
+        <div class="question-box" id="q23" data-category="mechanics"><div class="sentence">Wiatr wieje. O wyraz "Wiatr" zapytasz: <input type="text" id="in23" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q23', 'in23', ['co', 'co?'])">Sprawdź</button></div><div class="feedback" id="fb-in23"></div></div>
+        <div class="question-box" id="q24" data-category="mechanics"><div class="sentence">Wiatr wieje. O wyraz "wieje" zapytasz: <input type="text" id="in24" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q24', 'in24', ['corobi', 'corobi?'])">Sprawdź</button></div><div class="feedback" id="fb-in24"></div></div>
+        <div class="question-box" id="q25" data-category="mechanics"><div class="sentence">Kwiaty rosną. O wyraz "rosną" zapytasz: <input type="text" id="in25" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q25', 'in25', ['corobią', 'corobia', 'corobią?'])">Sprawdź</button></div><div class="feedback" id="fb-in25"></div></div>
+        <div class="question-box" id="q26" data-category="mechanics"><div class="sentence">Uzupełnij PODMIOT do orzeczenia "szczeka": <input type="text" id="in26" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q26', 'in26', ['pies', 'piesek'])">Sprawdź</button></div><div class="feedback" id="fb-in26"></div></div>
+        <div class="question-box" id="q27" data-category="mechanics"><div class="sentence">Uzupełnij PODMIOT do orzeczenia "miauczy": <input type="text" id="in27" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q27', 'in27', ['kot', 'kotek'])">Sprawdź</button></div><div class="feedback" id="fb-in27"></div></div>
+        <div class="question-box" id="q28" data-category="mechanics"><div class="sentence">Uzupełnij ORZECZENIE (co robi słońce?): Słońce <input type="text" id="in28" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q28', 'in28', ['świeci', 'grzeje', 'swieci'])">Sprawdź</button></div><div class="feedback" id="fb-in28"></div></div>
+        <div class="question-box" id="q29" data-category="mechanics"><div class="sentence">Wpisz pytanie do podmiotu w zdaniu "Słońce świeci": <input type="text" id="in29" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q29', 'in29', ['co', 'co?'])">Sprawdź</button></div><div class="feedback" id="fb-in29"></div></div>
+        <div class="question-box" id="q30" data-category="mechanics"><div class="sentence">Uzupełnij ORZECZENIE do podmiotu lekarz: Lekarz <input type="text" id="in30" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q30', 'in30', ['leczy', 'bada'])">Sprawdź</button></div><div class="feedback" id="fb-in30"></div></div>
+        <div class="question-box" id="q31" data-category="mechanics"><div class="sentence">Wpisz pytanie do orzeczenia z poprzedniego zdania (leczy): <input type="text" id="in31" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q31', 'in31', ['corobi', 'corobi?'])">Sprawdź</button></div><div class="feedback" id="fb-in31"></div></div>
+        <div class="question-box" id="q32" data-category="mechanics"><div class="sentence">Uzupełnij PODMIOT do orzeczenia "pada": <input type="text" id="in32" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q32', 'in32', ['deszcz', 'śnieg', 'snieg'])">Sprawdź</button></div><div class="feedback" id="fb-in32"></div></div>
+        <div class="question-box" id="q33" data-category="mechanics"><div class="sentence">Czynność w zdaniu wyraża (wpisz termin): <input type="text" id="in33" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q33', 'in33', ['orzeczenie'])">Sprawdź</button></div><div class="feedback" id="fb-in33"></div></div>
+        <div class="question-box" id="q34" data-category="mechanics"><div class="sentence">Wykonawcę czynności nazywamy (wpisz termin): <input type="text" id="in34" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q34', 'in34', ['podmiot', 'podmiotem'])">Sprawdź</button></div><div class="feedback" id="fb-in34"></div></div>
+        <div class="question-box" id="q35" data-category="mechanics"><div class="sentence">Zegar (co robi?) <input type="text" id="in35" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q35', 'in35', ['tyka', 'chodzi', 'bije'])">Sprawdź</button></div><div class="feedback" id="fb-in35"></div></div>
+
+    <h2>4. Wyzwanie Mistrza (Analiza Zdania)</h2>
+        <div style="background: #fff8e1; padding: 15px; border-radius: 8px; font-style: italic; margin-bottom: 20px; border-left: 5px solid #ffb300;">
+            Przeczytaj dokładnie poniższe zdania i wypisz poszukiwane słowa.
+        </div>
+        <div class="question-box" id="q36" data-category="master"><div class="sentence">"Nadeszła wiosna." Wypisz PODMIOT: <input type="text" id="in36" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q36', 'in36', ['wiosna'])">Sprawdź</button></div><div class="feedback" id="fb-in36"></div></div>
+        <div class="question-box" id="q37" data-category="master"><div class="sentence">"Nadeszła wiosna." Wypisz ORZECZENIE: <input type="text" id="in37" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q37', 'in37', ['nadeszła', 'nadeszla'])">Sprawdź</button></div><div class="feedback" id="fb-in37"></div></div>
+        <div class="question-box" id="q38" data-category="master"><div class="sentence">"Ptaki wesoło śpiewają." Wypisz PODMIOT: <input type="text" id="in38" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q38', 'in38', ['ptaki'])">Sprawdź</button></div><div class="feedback" id="fb-in38"></div></div>
+        <div class="question-box" id="q39" data-category="master"><div class="sentence">"Ptaki wesoło śpiewają." Wypisz ORZECZENIE: <input type="text" id="in39" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q39', 'in39', ['śpiewają', 'spiewaja'])">Sprawdź</button></div><div class="feedback" id="fb-in39"></div></div>
+        <div class="question-box" id="q40" data-category="master"><div class="sentence">"Marek grabi liście." Wypisz PODMIOT: <input type="text" id="in40" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q40', 'in40', ['marek'])">Sprawdź</button></div><div class="feedback" id="fb-in40"></div></div>
+        <div class="question-box" id="q41" data-category="master"><div class="sentence">"Marek grabi liście." Wypisz ORZECZENIE: <input type="text" id="in41" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q41', 'in41', ['grabi'])">Sprawdź</button></div><div class="feedback" id="fb-in41"></div></div>
+        <div class="question-box" id="q42" data-category="master"><div class="sentence">"Słońce mocno przygrzewa." Wypisz PODMIOT: <input type="text" id="in42" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q42', 'in42', ['słońce', 'slonce'])">Sprawdź</button></div><div class="feedback" id="fb-in42"></div></div>
+        <div class="question-box" id="q43" data-category="master"><div class="sentence">"Słońce mocno przygrzewa." Wypisz ORZECZENIE: <input type="text" id="in43" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q43', 'in43', ['przygrzewa'])">Sprawdź</button></div><div class="feedback" id="fb-in43"></div></div>
+        <div class="question-box" id="q44" data-category="master"><div class="sentence">"Kwiaty rozkwitają w ogrodzie." Wypisz PODMIOT: <input type="text" id="in44" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q44', 'in44', ['kwiaty'])">Sprawdź</button></div><div class="feedback" id="fb-in44"></div></div>
+        <div class="question-box" id="q45" data-category="master"><div class="sentence">"Kwiaty rozkwitają w ogrodzie." Wypisz ORZECZENIE: <input type="text" id="in45" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q45', 'in45', ['rozkwitają', 'rozkwitaja'])">Sprawdź</button></div><div class="feedback" id="fb-in45"></div></div>
+        <div class="question-box" id="q46" data-category="master"><div class="sentence">"Zima wreszcie odeszła." Wypisz PODMIOT: <input type="text" id="in46" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q46', 'in46', ['zima'])">Sprawdź</button></div><div class="feedback" id="fb-in46"></div></div>
+        <div class="question-box" id="q47" data-category="master"><div class="sentence">"Zima wreszcie odeszła." Wypisz ORZECZENIE: <input type="text" id="in47" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q47', 'in47', ['odeszła', 'odeszla'])">Sprawdź</button></div><div class="feedback" id="fb-in47"></div></div>
+        <div class="question-box" id="q48" data-category="master"><div class="sentence">Zadanie na czujność! W zdaniu "Widzę kota", co jest podmiotem? (wpisz wyraz domyślny): <input type="text" id="in48" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q48', 'in48', ['ja'])">Sprawdź</button></div><div class="feedback" id="fb-in48"></div></div>
+        <div class="question-box" id="q49" data-category="master"><div class="sentence">"Widzę kota" - wypisz orzeczenie: <input type="text" id="in49" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q49', 'in49', ['widzę', 'widze'])">Sprawdź</button></div><div class="feedback" id="fb-in49"></div></div>
+        <div class="question-box" id="q50" data-category="master"><div class="sentence">W zdaniu "Widzę kota", słowo "kota" to (podmiot czy inne? wpisz inne lub podmiot): <input type="text" id="in50" oninput="startTimerIfNeeded()"><button class="check-btn" onclick="checkInput('q50', 'in50', ['inne'])">Sprawdź</button></div><div class="feedback" id="fb-in50"></div></div>
+
+    </div> 
+    
+    <div style="text-align: center; margin-top: 60px; margin-bottom: 40px;">
+        <button id="finish-btn" onclick="finishTest()" style="padding: 18px 50px; background-color: var(--accent); color: white; font-size: 22px; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: bold; transition: transform 0.2s;">&#127937; ZAKOŃCZ TEST</button>
+    </div>
+
+    <div id="final-result" class="result-section">
+        <h2 style="font-size: 28px; border: none; justify-content: center; margin-top: 0;">&#127942; WYNIKI &#127942;</h2>
+        
+        <div style="font-size: 18px; margin-bottom: 20px;">
+            Imię i nazwisko: <input type="text" id="student-name" placeholder="Wpisz imię..." style="width: 250px; padding: 8px; font-weight: bold; background: white; border: 2px solid var(--primary); border-radius: 5px;">
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0;">
+            <div>
+                <div style="font-size: 14px; color: #777;">PUNKTY</div>
+                <div style="font-size: 36px; font-weight: bold; color: var(--primary);"><span id="final-score">0</span> / <span id="final-max">0</span></div>
+            </div>
+            <div>
+                <div style="font-size: 14px; color: #777;">CZAS PRACY</div>
+                <div style="font-size: 36px; font-weight: bold; color: var(--accent);"><span id="final-time">00:00</span></div>
+            </div>
+        </div>
+
+        <h3 style="text-align: left; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">&#128202; Analiza Tematów:</h3>
+        <table class="diagnostic-table">
+            <thead><tr><th>Dział / Temat</th><th>Wynik</th><th>Ocena</th></tr></thead>
+            <tbody id="diagnostic-body"></tbody>
+        </table>
+
+        <button id="send-results-btn" onclick="sendToGoogleSheets()" style="background-color: #0277bd; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; border: none; margin-top: 20px; width: 100%; max-width: 300px;">📤 Wyślij wynik do Nauczyciela</button>
+        <br>
+        <button onclick="window.print()" style="background-color: #546e7a; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; border: none; margin-top: 15px;">🖨️ Drukuj / Zapisz PDF</button>
+    </div>
+</div>
+
+<script>
+    // --- KONFIGURACJA (EDYCJA DLA NAUCZYCIELA) ---
+    // 1. Link do Twojego skryptu Google Sheets
+    const GOOGLE_SCRIPT_URL = "WKLEJ_LINK_TUTAJ"; 
+    
+    // 2. Unikalny klucz zapisu 
+    const STORAGE_KEY = 'test_polski_podmiot_orzeczenie_kl4_6'; 
+
+    // 3. Nazwy kategorii do tabeli wyników
+    const catNames = { 
+        'theory': 'Teoria i rozpoznawanie', 
+        'vocab': 'Słownictwo',
+        'mechanics': 'Zadawanie pytań',
+        'master': 'Analiza tekstu'
+    };
+    // ----------------------------------------------
+
+    let state = { score: 0, answeredIds: {}, startTime: null, endTime: null, isFinished: false };
+    let timerInterval;
+
+    window.addEventListener('load', () => {
+        loadState();
+        if (state.startTime && !state.isFinished) { 
+             timerInterval = setInterval(updateTimer, 1000); 
+             updateTimer();
+        } else if (state.isFinished) {
+             showFinalResult(false); 
+             document.getElementById('timer').innerText = formatTime(state.endTime - state.startTime); 
+        }
+        document.getElementById('final-max').innerText = document.querySelectorAll('.question-box').length;
+    });
+
+    // --- SMART TIMER LOGIC ---
+    function startTimerIfNeeded() {
+        if (!state.startTime && !state.isFinished) {
+            state.startTime = Date.now();
+            saveState();
+            timerInterval = setInterval(updateTimer, 1000);
+            console.log("Timer uruchomiony aktywnością ucznia.");
+        }
+    }
+
+    function updateTimer() {
+        if(!state.startTime) return;
+        const diff = Date.now() - state.startTime;
+        document.getElementById('timer').innerText = formatTime(diff);
+    }
+    function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const m = Math.floor(totalSeconds / 60); const s = totalSeconds % 60;
+        return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
+    }
+
+    // --- LOGIKA PYTAŃ ---
+    function checkChoice(qId, btn, isCorrect) {
+        startTimerIfNeeded(); 
+        if (state.answeredIds[qId] !== undefined || state.isFinished) return;
+        state.answeredIds[qId] = isCorrect;
+        if(isCorrect) state.score++;
+        
+        const parent = btn.parentElement;
+        const allBtns = parent.querySelectorAll('.choice-btn');
+        allBtns.forEach(b => b.disabled = true);
+        parent.parentElement.classList.add('locked');
+
+        if(isCorrect) {
+            btn.classList.add('selected-correct');
+            parent.nextElementSibling.innerHTML = '<span class="correct">&#10004; Dobrze!</span>';
+        } else {
+            btn.classList.add('selected-wrong');
+            parent.nextElementSibling.innerHTML = '<span class="wrong">&#10006; Źle!</span>';
+            allBtns.forEach(b => { if(b.getAttribute('onclick').includes('true')) b.classList.add('show-correct'); });
+        }
+        saveState();
+    }
+
+    function checkInput(qId, inputId, correctAnswers) {
+        startTimerIfNeeded(); 
+        if (state.answeredIds[qId] !== undefined || state.isFinished) return;
+        const input = document.getElementById(inputId);
+        const btn = input.nextElementSibling;
+        const feedback = document.getElementById('fb-' + inputId);
+        
+        let val = input.value.trim().replace(/\s/g, '').toLowerCase();
+        let correct = correctAnswers.map(a => a.toString().replace(/\s/g, '').toLowerCase());
+        const isCorrect = correct.includes(val);
+
+        state.answeredIds[qId] = isCorrect;
+        if(isCorrect) state.score++;
+
+        input.disabled = true; btn.disabled = true;
+        input.closest('.question-box').classList.add('locked');
+
+        if(isCorrect) {
+            input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9';
+            feedback.innerHTML = '<span class="correct">&#10004; Dobrze!</span>';
+        } else {
+            input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee';
+            feedback.innerHTML = '<span class="wrong">&#10006; Źle. Poprawnie: ' + correctAnswers[0] + '</span>';
+        }
+        saveState();
+    }
+
+    // --- ZAPIS STANU ---
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    function loadState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) { state = JSON.parse(saved); restoreUI(); }
+    }
+    function restoreUI() {
+        for (const [qId, isCorrect] of Object.entries(state.answeredIds)) {
+            const box = document.getElementById(qId);
+            if(!box) continue;
+            box.classList.add('locked');
+            box.querySelectorAll('button').forEach(b => b.disabled = true);
+            const input = box.querySelector('input');
+            if(input) {
+                input.disabled = true; 
+                if(isCorrect) { input.style.borderColor = '#2e7d32'; input.style.backgroundColor = '#e8f5e9'; }
+                else { input.style.borderColor = '#c62828'; input.style.backgroundColor = '#ffebee'; }
+            }
+            const fb = box.querySelector('.feedback');
+            if(fb) fb.innerHTML = isCorrect ? '<span class="correct">&#10004; OK</span>' : '<span class="wrong">&#10006; Błąd</span>';
+        }
+    }
+    function resetTest() { if(confirm('Zresetować postępy?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+
+    // --- FINAŁ ---
+    function finishTest() {
+        if(!confirm("Zakończyć test?")) return;
+        if (!state.startTime) state.startTime = Date.now(); 
+        clearInterval(timerInterval); state.isFinished = true; state.endTime = Date.now();
+        saveState(); showFinalResult(true);
+    }
+
+    function showFinalResult(scroll) {
+        document.getElementById('final-score').innerText = state.score;
+        if(state.endTime) document.getElementById('final-time').innerText = formatTime(state.endTime - state.startTime);
+        
+        let stats = {};
+        document.querySelectorAll('.question-box').forEach(box => {
+            let cat = box.getAttribute('data-category');
+            if(!stats[cat]) stats[cat] = { total: 0, correct: 0 };
+            stats[cat].total++;
+            if(state.answeredIds[box.id] === true) stats[cat].correct++;
+        });
+
+        const tbody = document.getElementById('diagnostic-body');
+        tbody.innerHTML = '';
+
+        for (const [cat, data] of Object.entries(stats)) {
+            if(data.total === 0) continue;
+            let p = Math.round((data.correct / data.total) * 100);
+            let cls = p >= 75 ? 'diag-good' : (p >= 50 ? 'diag-ok' : 'diag-bad');
+            tbody.innerHTML += `<tr><td>${catNames[cat] || cat}</td><td>${data.correct}/${data.total}</td><td class="${cls}">${p}%</td></tr>`;
+        }
+        document.getElementById('final-result').style.display = 'block';
+        document.getElementById('finish-btn').style.display = 'none';
+        if(scroll) document.getElementById('final-result').scrollIntoView({behavior: 'smooth'});
+    }
+
+    function sendToGoogleSheets() {
+        const btn = document.getElementById('send-results-btn');
+        const nameInput = document.getElementById('student-name');
+        const studentName = nameInput.value.trim();
+
+        if(studentName.length < 3) { alert("Wpisz imię i nazwisko!"); nameInput.focus(); return; }
+        if(GOOGLE_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbz_ByEj8poSy36m8iehCHYmislHj0sTvHLRhQPUkgic_L5Ss8fXrF_a2THkm-hpuZL0OA/exec")) { alert("Błąd konfiguracji: Brak linku do arkusza!"); return; }
+
+        btn.disabled = true; btn.innerText = "⏳ Wysyłanie...";
+
+        const dataToSend = {
+            uczen: studentName,
+            temat: document.getElementById('test-title').innerText,
+            wynik: state.score + " / " + document.getElementById('final-max').innerText,
+            czas: document.getElementById('final-time').innerText,
+            diagnoza: Array.from(document.querySelectorAll('#diagnostic-body tr')).map(r => r.cells[0].innerText + " (" + r.cells[2].innerText + ")").join(", ")
+        };
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST", mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dataToSend)
+        }).then(() => {
+            btn.innerText = "✅ Wynik wysłany!"; btn.style.backgroundColor = "#2e7d32";
+            alert("Sukces!");
+        }).catch(err => {
+            console.error(err); btn.innerText = "❌ Błąd"; alert("Błąd wysyłania.");
+        });
+    }
+</script>
+</body>
+</html>
