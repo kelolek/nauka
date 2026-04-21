@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karta Pracy: Moja okolica na mapie i planie</title>
+    <style>
+        /* --- STYLE ZGODNE Z MASTER_TEST.HTML --- */
+        :root {
+            --primary: #0277bd;
+            --primary-light: #e1f5fe; 
+            --accent: #ff6f00;
+            --success: #2e7d32;
+            --error: #c62828;
+            --bg-grid: #f5f5f5;
+            --text-main: #263238;
+        }
+        body {
+            font-family: 'Segoe UI', 'Verdana', sans-serif;
+            background-color: var(--bg-grid);
+            background-image: linear-gradient(#cfd8dc 1px, transparent 1px), linear-gradient(90deg, #cfd8dc 1px, transparent 1px);
+            background-size: 20px 20px; color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center;
+        }
+        .container {
+            background-color: #ffffff; width: 100%; max-width: 850px; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 8px solid var(--primary);
+        }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 5px; }
+        .test-info { text-align: center; color: #546e7a; margin-bottom: 30px; font-size: 0.9em; }
+        .question-box { background: #fdfdfd; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 25px; transition: 0.3s; }
+        .question-box:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(2,119,189,0.1); }
+        h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid var(--primary-light); padding-bottom: 8px; }
+        .input-field { padding: 8px; border: 2px solid #cfd8dc; border-radius: 6px; font-size: 16px; transition: 0.3s; outline: none; }
+        .input-field:focus { border-color: var(--primary); background-color: var(--primary-light); }
+        .task-btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .task-btn:hover { background: #01579b; transform: translateY(-2px); }
+        .task-btn:disabled { background: #b0bec5; cursor: not-allowed; transform: none; }
+        .grid-container { display: flex; gap: 5px; margin: 15px 0; flex-wrap: wrap; }
+        .grid-square { width: 40px; height: 40px; border: 1px solid #90a4ae; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; border-radius: 4px; }
+        .grid-square.active { background: var(--accent); border-color: var(--accent); color: white; }
+        .feedback { font-weight: bold; margin-top: 10px; min-height: 20px; }
+        .success-msg { color: var(--success); }
+        .error-msg { color: var(--error); }
+        
+        /* Sekcja wyników i tabela diagnostyczna */
+        .result-section { display: none; margin-top: 40px; border-top: 4px solid var(--primary); padding-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: var(--primary-light); color: var(--primary); }
+        .score-big { font-size: 32px; font-weight: bold; color: var(--primary); text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="test-title">Moja okolica na mapie i planie</h1>
+    <p class="test-info">Geografia Klasa 4 | Cel: 50 pkt | Smart Timer Aktywny</p>
+
+    <div class="question-box" id="student-info">
+        <h3>Twoje Dane:</h3>
+        <input type="text" id="student-name" class="input-field" placeholder="Imię i Nazwisko" style="width: 90%;" oninput="startTimer()">
+    </div>
+
+    <div class="question-box">
+        <h3>1. Barwy i znaki na mapie (10 pkt)</h3>
+        <p>Wybierz właściwe znaczenie kolorów:</p>
+        <div style="margin-bottom: 8px;">Zielony: <select id="q1_1" class="input-field"><option value="">?</option><option value="lasy">Lasy/Niziny</option><option value="woda">Rzeki</option></select> (1 pkt)</div>
+        <div style="margin-bottom: 8px;">Niebieski: <select id="q1_2" class="input-field"><option value="">?</option><option value="woda">Woda</option><option value="pola">Pola</option></select> (1 pkt)</div>
+        <div style="margin-bottom: 8px;">Żółty: <select id="q1_3" class="input-field"><option value="">?</option><option value="wyzyny">Wyżyny</option><option value="lasy">Lasy</option></select> (1 pkt)</div>
+        <div style="margin-bottom: 8px;">Brązowy: <select id="q1_4" class="input-field"><option value="">?</option><option value="gory">Góry</option><option value="miasta">Miasta</option></select> (1 pkt)</div>
+        
+        <p>Wpisz literę elementu mapy: A-Legenda, B-Skala, C-Tytuł, D-Treść</p>
+        <div>Objaśnia znaki: <input type="text" id="q1_5" class="input-field" style="width: 40px;"> (1 pkt)</div>
+        <div>Mówi, co to za mapa: <input type="text" id="q1_6" class="input-field" style="width: 40px;"> (1 pkt)</div>
+        <div>Pozwala liczyć odległość: <input type="text" id="q1_7" class="input-field" style="width: 40px;"> (1 pkt)</div>
+        <div>Wszystkie rysunki i znaki: <input type="text" id="q1_8" class="input-field" style="width: 40px;"> (1 pkt)</div>
+        <div>Zapis "1:2000" to: <input type="text" id="q1_9" class="input-field" style="width: 40px;"> (1 pkt)</div>
+        <div>Gdzie szukać znaczenia symboli?: <input type="text" id="q1_10" class="input-field" style="width: 40px;"> (1 pkt)</div>
+        <button class="task-btn" onclick="checkSec1()" id="btn-s1" style="margin-top:10px;">Zapisz Sekcję 1</button>
+        <div id="fb-s1" class="feedback"></div>
+    </div>
+
+    <div class="question-box">
+        <h3>2. Kierunki geograficzne (10 pkt)</h3>
+        <p>Patrzysz na wejście do szkoły na <strong>PÓŁNOC (N)</strong>. Podaj kierunki (2 pkt za każdy):</p>
+        <div>Co masz po swojej prawej stronie? <input type="text" id="q2_1" class="input-field"></div>
+        <div>Co masz po swojej lewej stronie? <input type="text" id="q2_2" class="input-field"></div>
+        <div>Gdzie jest boisko, jeśli szkoła je zasłania? <input type="text" id="q2_3" class="input-field"></div>
+        <div>Skrót kierunku Południowego to: <input type="text" id="q2_4" class="input-field"></div>
+        <div>Kierunek przeciwny do Północy to: <input type="text" id="q2_5" class="input-field"></div>
+        <button class="task-btn" onclick="checkSec2()" id="btn-s2" style="margin-top:10px;">Zapisz Sekcję 2</button>
+        <div id="fb-s2" class="feedback"></div>
+    </div>
+
+    <div class="question-box">
+        <h3>3. Mistrz Skali i Pomiarów (15 pkt)</h3>
+        <p><strong>Obliczenia (6 pkt):</strong></p>
+        <div>Skala 1:100. 1 cm to <input type="number" id="q3_1" class="input-field" style="width: 60px;"> m.</div>
+        <div>Skala 1:1000. 1 cm to <input type="number" id="q3_2" class="input-field" style="width: 60px;"> m.</div>
+        <div>Skala 1 cm - 10 m. 3 cm na mapie to <input type="number" id="q3_3" class="input-field" style="width: 60px;"> m.</div>
+        
+        <p><strong>Wyklikaj drogę (9 pkt). 1 kratka = 1 cm na planie:</strong></p>
+        <div>Trasa na boisko (40 m w terenie, skala 1 cm = 10 m):</div>
+        <div class="grid-container" id="grid1">
+            <div class="grid-square" onclick="toggleSquare(this)">1cm</div><div class="grid-square" onclick="toggleSquare(this)">1cm</div>
+            <div class="grid-square" onclick="toggleSquare(this)">1cm</div><div class="grid-square" onclick="toggleSquare(this)">1cm</div>
+            <div class="grid-square" onclick="toggleSquare(this)">1cm</div><div class="grid-square" onclick="toggleSquare(this)">1cm</div>
+        </div>
+        <button class="task-btn" onclick="checkSec3()" id="btn-s3" style="margin-top:10px;">Zapisz Sekcję 3</button>
+        <div id="fb-s3" class="feedback"></div>
+    </div>
+
+    <div class="question-box">
+        <h3>4. Mapa Opisowa - Okolica Szkoły (15 pkt)</h3>
+        <p>Opis ze zdjęcia lotniczego:</p>
+        <div style="font-style: italic; background: #eee; padding: 10px; margin-bottom: 15px;">
+            Szkoła jest w centrum. Na wschód są dwa boiska. Na południu biegną tory kolejowe. Na północy (za ulicą) stoją bloki. Na zachodzie jest ulica Strońska.
+        </div>
+        <div>W jakim kierunku dojdziesz do torów? <input type="text" id="q4_1" class="input-field"> (3 pkt)</div>
+        <div>Co jest na zachód od szkoły? <input type="text" id="q4_2" class="input-field"> (3 pkt)</div>
+        <div>Gdzie są boiska? <input type="text" id="q4_3" class="input-field"> (3 pkt)</div>
+        <div>Gdzie stoją bloki mieszkalne? <input type="text" id="q4_4" class="input-field"> (3 pkt)</div>
+        <div>Ulica Strońska jest na: <select id="q4_5" class="input-field"><option value="">?</option><option value="W">Wschodzie</option><option value="Z">Zachodzie</option></select> (3 pkt)</div>
+        <button class="task-btn" onclick="checkSec4()" id="btn-s4" style="margin-top:10px;">Zapisz Sekcję 4</button>
+        <div id="fb-s4" class="feedback"></div>
+    </div>
+
+    <div style="text-align:center;">
+        <button class="task-btn" onclick="finishTest()" style="background: var(--accent); padding: 15px 30px; font-size: 1.2em;">ZAKOŃCZ TEST</button>
+    </div>
+
+    <div id="result-section" class="result-section">
+        <h2 style="text-align:center;">Twoje Wyniki</h2>
+        <div class="score-big">Punkty: <span id="final-score">0</span> / <span id="final-max">50</span></div>
+        <div style="text-align:center; color: #666; margin-bottom: 20px;">Czas pracy: <span id="final-time">00:00</span></div>
+        
+        <table>
+            <thead>
+                <tr><th>Sekcja</th><th>Wynik</th><th>Status</th></tr>
+            </thead>
+            <tbody id="diagnostic-body"></tbody>
+        </table>
+
+        <div style="text-align:center; margin-top:30px;">
+            <button id="send-results-btn" class="task-btn" onclick="sendToGoogleSheets()" style="background: var(--success);">WYŚLIJ WYNIK DO NAUCZYCIELA</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // KONFIGURACJA GOOGLE SCRIPT
+    const GOOGLE_SCRIPT_URL = "TU_WKLEJ_LINK_DO_TWOJEGO_SKRYPTU_GOOGLE";
+
+    let state = {
+        score: 0,
+        startTime: null,
+        endTime: null,
+        results: { s1: 0, s2: 0, s3: 0, s4: 0 },
+        locked: { s1: false, s2: false, s3: false, s4: false }
+    };
+
+    function startTimer() {
+        if (!state.startTime) state.startTime = new Date();
+    }
+
+    function toggleSquare(el) {
+        startTimer();
+        el.classList.toggle('active');
+    }
+
+    // SPRAWDZANIE SEKCJI
+    function checkSec1() {
+        if (state.locked.s1) return;
+        let p = 0;
+        if (document.getElementById('q1_1').value === 'lasy') p++;
+        if (document.getElementById('q1_2').value === 'woda') p++;
+        if (document.getElementById('q1_3').value === 'wyzyny') p++;
+        if (document.getElementById('q1_4').value === 'gory') p++;
+        if (document.getElementById('q1_5').value.toUpperCase() === 'A') p++;
+        if (document.getElementById('q1_6').value.toUpperCase() === 'C') p++;
+        if (document.getElementById('q1_7').value.toUpperCase() === 'B') p++;
+        if (document.getElementById('q1_8').value.toUpperCase() === 'D') p++;
+        if (document.getElementById('q1_9').value.toUpperCase() === 'B') p++;
+        if (document.getElementById('q1_10').value.toUpperCase() === 'A') p++;
+        state.results.s1 = p;
+        state.locked.s1 = true;
+        updateUI('s1', p, 10);
+    }
+
+    function checkSec2() {
+        if (state.locked.s2) return;
+        let p = 0;
+        let a1 = document.getElementById('q2_1').value.toLowerCase();
+        let a2 = document.getElementById('q2_2').value.toLowerCase();
+        let a4 = document.getElementById('q2_4').value.toLowerCase();
+        if (a1.includes('wschód') || a1 === 'e') p += 2;
+        if (a2.includes('zachód') || a2 === 'w') p += 2;
+        if (document.getElementById('q2_3').value.toLowerCase().includes('południe')) p += 2;
+        if (a4 === 's' || a4 === 'południe') p += 2;
+        if (document.getElementById('q2_5').value.toLowerCase().includes('południe')) p += 2;
+        state.results.s2 = p;
+        state.locked.s2 = true;
+        updateUI('s2', p, 10);
+    }
+
+    function checkSec3() {
+        if (state.locked.s3) return;
+        let p = 0;
+        if (document.getElementById('q3_1').value == 1) p += 2;
+        if (document.getElementById('q3_2').value == 10) p += 2;
+        if (document.getElementById('q3_3').value == 30) p += 2;
+        let squares = document.querySelectorAll('#grid1 .active').length;
+        if (squares === 4) p += 9; else if (squares > 0) p += 3;
+        state.results.s3 = p;
+        state.locked.s3 = true;
+        updateUI('s3', p, 15);
+    }
+
+    function checkSec4() {
+        if (state.locked.s4) return;
+        let p = 0;
+        if (document.getElementById('q4_1').value.toLowerCase().includes('południe')) p += 3;
+        if (document.getElementById('q4_2').value.toLowerCase().includes('strońska')) p += 3;
+        if (document.getElementById('q4_3').value.toLowerCase().includes('wschód')) p += 3;
+        if (document.getElementById('q4_4').value.toLowerCase().includes('północ')) p += 3;
+        if (document.getElementById('q4_5').value === 'Z') p += 3;
+        state.results.s4 = p;
+        state.locked.s4 = true;
+        updateUI('s4', p, 15);
+    }
+
+    function updateUI(sid, p, max) {
+        document.getElementById(`fb-${sid}`).innerText = `Zapisano: ${p}/${max} pkt.`;
+        document.getElementById(`btn-${sid}`).disabled = true;
+    }
+
+    function finishTest() {
+        state.endTime = new Date();
+        const duration = Math.floor((state.endTime - state.startTime) / 1000);
+        const mins = Math.floor(duration / 60);
+        const secs = duration % 60;
+        
+        state.score = state.results.s1 + state.results.s2 + state.results.s3 + state.results.s4;
+        
+        document.getElementById('final-score').innerText = state.score;
+        document.getElementById('final-time').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        
+        const diagnostic = [
+            {n: "1. Mapa i Barwy", s: state.results.s1, m: 10},
+            {n: "2. Kierunki", s: state.results.s2, m: 10},
+            {n: "3. Skala i Pomiary", s: state.results.s3, m: 15},
+            {n: "4. Analiza Okolicy", s: state.results.s4, m: 15}
+        ];
+
+        let html = "";
+        diagnostic.forEach(d => {
+            html += `<tr><td>${d.n}</td><td>${d.s}/${d.m}</td><td>${d.s > (d.m/2) ? '✅ Dobrze' : '❌ Do powtórki'}</td></tr>`;
+        });
+        document.getElementById('diagnostic-body').innerHTML = html;
+        document.getElementById('result-section').style.display = 'block';
+        document.getElementById('result-section').scrollIntoView({behavior: 'smooth'});
+    }
+
+    function sendToGoogleSheets() {
+        const btn = document.getElementById('send-results-btn');
+        const studentName = document.getElementById('student-name').value.trim();
+
+        if (studentName.length < 3) { alert("Wpisz imię i nazwisko!"); return; }
+        if (GOOGLE_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbz_ByEj8poSy36m8iehCHYmislHj0sTvHLRhQPUkgic_L5Ss8fXrF_a2THkm-hpuZL0OA/exec")) { alert("Nauczyciel nie skonfigurował linku do wysyłki!"); return; }
+
+        btn.disabled = true; btn.innerText = "⏳ Wysyłanie...";
+
+        const data = {
+            uczen: studentName,
+            temat: "Moja okolica na mapie i planie",
+            wynik: state.score + " / 50",
+            czas: document.getElementById('final-time').innerText,
+            diagnoza: Array.from(document.querySelectorAll('#diagnostic-body tr')).map(r => r.innerText).join(" | ")
+        };
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST", mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        }).then(() => {
+            btn.innerText = "✅ Wysłano!";
+            alert("Wynik został pomyślnie wysłany!");
+        }).catch(e => alert("Błąd wysyłki!"));
+    }
+</script>
+</body>
+</html>
